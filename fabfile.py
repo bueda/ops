@@ -73,7 +73,9 @@ def _run_chef_solo(config):
     with settings(config=config, warn_only=True):
         result = sudo("""
             cd %(scratch_path)s;
-            /var/lib/gems/1.8/bin/chef-solo -j %(scratch_path)s/config/%(config)s -c %(scratch_path)s/config/solo.rb
+            /var/lib/gems/1.8/bin/chef-solo \
+                -j %(scratch_path)s/config/%(config)s \
+                -c %(scratch_path)s/config/solo.rb
             """ % env)
     if result.failed:
         abort("Chef run failed, %s" % result)
