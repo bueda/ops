@@ -133,5 +133,4 @@ def test():
     require('scratch_path')
     require('cloned')
     with cd(env.scratch_path):
-        test_result = local('rake' % env, capture=False).return_code
-    return test_result
+        return local('rake' % env, capture=False).return_code
