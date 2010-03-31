@@ -28,7 +28,7 @@ def production():
     env.key_name = "production"
     env.chef_configs = ["common.json", "common-web.json", "production.json"]
 
-def deploy(commit=None, release=None):
+def deploy(release=None):
     """
     Deploy a specific commit, tag or HEAD to all servers and/or S3.
     """
@@ -39,7 +39,7 @@ def deploy(commit=None, release=None):
     _clone()
     if test():
         abort("Tests did not pass")
-    _make_release(commit, release)
+    _make_release(release)
     if confirm("Upload to S3?", default=env.upload_to_s3):
         _upload_to_s3()
     if confirm("Re-Chef?", default=True):
