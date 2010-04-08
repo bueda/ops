@@ -2,9 +2,10 @@
 import os
 from fabric.api import env, abort, require, settings, runs_once, prompt, get
 from fabric.contrib.console import confirm
-from fab_shared import (_find_unit_root, _development, _production, _clone,
-        _make_release, TIME_NOW, _make_archive, _conditional_upload_to_s3,
-        S3_KEY, local, put, run, sudo, EC2_CONNECTION, ELB_CONNECTION)
+from fab_shared import (_find_unit_root, _development, _production, _localhost,
+        _clone, _make_release, TIME_NOW, _make_archive,
+        _conditional_upload_to_s3, S3_KEY, local, put, run, sudo,
+        EC2_CONNECTION, ELB_CONNECTION)
 import time
 
 env.unit = "chef"
@@ -22,8 +23,7 @@ def development():
     env.tagged = False
     env.security_groups = ["development", "ssh", "database-client"]
     env.key_name = "development"
-    env.chef_configs = ["common", "common-web", "dev",
-            "lda", "solr"]
+    env.chef_configs = ["common", "common-web", "dev", "lda", "solr"]
 
 def production():
     """
@@ -34,6 +34,14 @@ def production():
     env.security_groups = ["production", "ssh", "database-client"]
     env.key_name = "production"
     env.chef_configs = ["common", "common-web", "production"]
+
+def localhost():
+    """
+    [Env] Sets environment for this machine, without using SSH.
+    """
+    _localhost()
+    env.tagged = False
+    env.chef_configs = ["common", "common-web", "dev", "lda", "solr"]
 
 def deploy(release=None):
     """
@@ -121,7 +129,6 @@ def spawn_ec2_instance():
     instance.monitor()
 
     print "Waiting for Chef to finish bootstrapping the instance..."
-    #TODO this may be too long now that the base config is much smaller
     time.sleep(350)
     with settings(hosts=["%s:%d" % (instance.dns_name, env.ssh_port)]):
         get('/tmp/CHEF-STATUS', '/tmp/CHEF-STATUS')
