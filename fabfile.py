@@ -69,6 +69,7 @@ def deploy_fabfile():
     print "Deploying shared fabfile..."
     put('fab_shared.py', '/tmp', mode=0755)
     sudo('mv /tmp/fab_shared.py /root')
+    # TODO this will never happen, since it's not tagged
     _conditional_upload_to_s3('fab_shared.py')
 
 
