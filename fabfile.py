@@ -50,6 +50,8 @@ def deploy(release=None):
     require('hosts', provided_by = [development, production])
     require('unit')
 
+    deploy_fabfile()
+
     _clone(release)
     _make_release(release)
     require('pretty_release')
@@ -61,6 +63,14 @@ def deploy(release=None):
     _conditional_upload_to_s3()
     if confirm("Re-Chef?", default=True):
         rechef(release=env.release)
+
+def deploy_fabfile():
+    require('hosts', provided_by = [development, production])
+    print "Deploying shared fabfile..."
+    put('fab_shared.py', '/tmp', mode=0755)
+    sudo('mv /tmp/fab_shared.py /root')
+    _conditional_upload_to_s3('fab_shared.py')
+
 
 def rechef(release=None):
     """
