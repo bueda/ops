@@ -23,7 +23,7 @@ def development():
     env.tagged = False
     env.security_groups = ["development", "ssh", "database-client"]
     env.key_name = "development"
-    env.chef_configs = ["common", "common-web", "dev", "lda", "solr"]
+    env.chef_configs = ["common", "common-web", "dev", "lda"]
 
 def production():
     """
@@ -41,7 +41,7 @@ def localhost():
     """
     _localhost()
     env.tagged = False
-    env.chef_configs = ["common", "common-web", "dev", "lda", "solr"]
+    env.chef_configs = ["common", "common-web", "dev", "lda"]
 
 def deploy(release=None):
     """
@@ -85,7 +85,7 @@ def rechef(release=None):
     if (not env.tagged and
             confirm("Re-chef with production cookbook?", default=True)):
         S3_KEY.key = '%(unit)s.tar.gz' % env
-        S3_KEY.get_contents_to_filename('/tmp/%(unit)s.tar.gz' % env)
+        S3_KEY.get_contents_to_filename(archive_path)
     else:
         if not release:
             env.release = prompt("Chef commit or tag?", default='HEAD')
