@@ -4,7 +4,7 @@ from fabric.api import env, abort, require, settings, runs_once, prompt, get
 from fabric.contrib.console import confirm
 from fab_shared import (_find_unit_root, _development, _production, _localhost,
         _clone, _make_release, TIME_NOW, _make_archive,
-        _conditional_upload_to_s3, S3_KEY, local, put, run, sudo,
+        _conditional_upload_to_s3, _upload_to_s3, S3_KEY, local, put, run, sudo,
         EC2_CONNECTION, ELB_CONNECTION)
 import time
 
@@ -69,8 +69,7 @@ def deploy_fabfile():
     print "Deploying shared fabfile..."
     put('fab_shared.py', '/tmp', mode=0755)
     sudo('mv /tmp/fab_shared.py /root')
-    # TODO this will never happen, since it's not tagged
-    _conditional_upload_to_s3('fab_shared.py')
+    _upload_to_s3('fab_shared.py')
 
 
 def rechef(release=None):
