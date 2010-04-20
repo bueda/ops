@@ -2,7 +2,7 @@
 import os
 from fabric.api import env, abort, require, settings, runs_once, prompt, get
 from fabric.contrib.console import confirm
-from fab_shared import (_find_unit_root, _development, _production, _localhost,
+from fab_shared import (_find_unit_root, _development, _production,
         _clone, _make_release, TIME_NOW, _make_archive,
         _conditional_upload_to_s3, _upload_to_s3, S3_KEY, local, put, run, sudo,
         EC2_CONNECTION, ELB_CONNECTION)
@@ -34,14 +34,6 @@ def production():
     env.security_groups = ["production", "ssh", "database-client"]
     env.key_name = "production"
     env.chef_configs = ["common", "common-web", "production"]
-
-def localhost():
-    """
-    [Env] Sets environment for this machine, without using SSH.
-    """
-    _localhost()
-    env.tagged = False
-    env.chef_configs = ["common", "common-web", "dev", "lda"]
 
 def deploy(release=None):
     """
