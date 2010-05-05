@@ -8,12 +8,28 @@ from fab_shared import (_find_unit_root, _development, _production,
         EC2_CONNECTION, ELB_CONNECTION)
 import time
 
+# Default AMI (Ubuntu Karmic 9.10 32-bit)
+env.ami = "ami-bb709dd2"
+env.region = 'us-east-1b'
+env.user_data = "chef.user-data"
+
 env.unit = "chef"
-env.user_data = "deployment/chef.user-data"
 env.scm = "git@github.com:bueda/chef"
 env.root_dir = _find_unit_root(os.path.abspath(os.path.dirname(__file__)))
 
 env.scratch_path = '/tmp/%s-%s' % (env.unit, TIME_NOW)
+
+def base():
+    env.tagged = False
+    env.security_groups = ["development", "ssh"]
+    env.key_name = "temporary"
+    env.chef_configs = []
+
+def chef_server():
+    base()
+    env.security_groups.append("chef-server")
+    env.key_name = "chef-server"
+    env.chef_configs.append("server")
 
 def development():
     """
@@ -98,7 +114,7 @@ def _run_chef_solo(config):
     with settings(warn_only=True):
         result = sudo("""
             cd /tmp/%(unit)s;
-            /var/lib/gems/1.8/bin/chef-solo \
+            /usr/bin/chef-solo \
                 -j /tmp/%(unit)s/config/%(config)s.json \
                 -c /tmp/%(unit)s/config/solo.rb
             """ % env)
@@ -106,15 +122,25 @@ def _run_chef_solo(config):
         abort("Chef run failed, %s" % result)
 
 @runs_once
-def spawn_ec2_instance():
+def spawn(ami=None, region=None, user_data=None):
     """
     Create a new server instance, different for each environment.
     """
-    require('ami', provided_by=[production, development])
-    require('region', provided_by=[production, development])
-    require('user_data', provided_by=[production, development])
-    require('security_groups', provided_by=[production, development])
-    require('key_name', provided_by=[production, development])
+    require('ami')
+    require('region')
+    require('user_data')
+    require('security_groups', provided_by=[base, production, development])
+    require('key_name', provided_by=[base, production, development])
+
+    if ami:
+        env.ami = ami
+
+    if region:
+        env.region = region
+
+    if user_data:
+        env.user_data = user_data
+
     print "Launching instance with image %s" % env.ami
 
     image = EC2_CONNECTION.get_image(env.ami)
@@ -131,7 +157,6 @@ def spawn_ec2_instance():
         time.sleep(20)
         print "%s is %s" % (instance, instance.state)
     print "Public DNS: %s" % instance.dns_name
-    instance.monitor()
 
     print "Waiting for Chef to finish bootstrapping the instance..."
     time.sleep(350)
@@ -144,14 +169,6 @@ def spawn_ec2_instance():
 
     with settings(hosts=["%s:%d" % (instance.dns_name, env.ssh_port)]):
         rechef()
-
-    if (env.key_name == "production"
-            and confirm("Attach to load balancer? Test before saying yes!",
-            default=False)):
-        status = ELB_CONNECTION.register_instances(env.load_balancer,
-                [instance.id])
-        print("Status of attaching %s to load balancer %s was %s" 
-                % (instance.id, env.load_balancer, status))
 
 def test(dir=None):
     if not dir:
