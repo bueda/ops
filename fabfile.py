@@ -21,6 +21,9 @@ env.chef_configs = []
 env.tagged = False
 env.key_name = "temporary"
 
+def temp():
+    env.security_groups.append("temporary")
+
 def small():
     # Small AMI (Ubuntu Lucid 10.04 32-bit)
     env.ami = "ami-2d4aa444"
