@@ -5,11 +5,9 @@ from fabric.contrib.console import confirm
 from fab_shared import (_find_unit_root, _development, _production,
         _clone, _make_release, TIME_NOW, _make_archive,
         _conditional_upload_to_s3, _upload_to_s3, S3_KEY, local, put, run, sudo,
-        EC2_CONNECTION, ELB_CONNECTION)
+        EC2_CONNECTION)
 import time
 
-# Default AMI (Ubuntu Karmic 9.10 32-bit)
-env.ami = "ami-bb709dd2"
 env.region = 'us-east-1b'
 env.user_data = "chef.user-data"
 
@@ -18,15 +16,27 @@ env.scm = "git@github.com:bueda/chef"
 env.root_dir = _find_unit_root(os.path.abspath(os.path.dirname(__file__)))
 
 env.scratch_path = '/tmp/%s-%s' % (env.unit, TIME_NOW)
+env.security_groups = ["development", "ssh"]
+env.chef_configs = []
+env.tagged = False
+env.key_name = "temporary"
 
-def base():
-    env.tagged = False
-    env.security_groups = ["development", "ssh"]
-    env.key_name = "temporary"
-    env.chef_configs = []
+def small():
+    # Small AMI (Ubuntu Lucid 10.04 32-bit)
+    env.ami = "ami-2d4aa444"
+    env.instance_type = 'm1.small'
+
+def large():
+    # Large AMI (Ubuntu Lucid 10.04 64-bit)
+    env.ami = 'ami-fd4aa494'
+    env.instance_type = 'm1.large'
+
+def extra_large():
+    # Large AMI (Ubuntu Lucid 10.04 64-bit)
+    env.ami = 'ami-fd4aa494'
+    env.instance_type = 'm1.xlarge'
 
 def chef_server():
-    base()
     env.security_groups.append("chef-server")
     env.key_name = "chef-server"
     env.chef_configs.append("server")
@@ -39,7 +49,7 @@ def development():
     env.tagged = False
     env.security_groups = ["development", "ssh", "database-client"]
     env.key_name = "development"
-    env.chef_configs = ["common", "common-web", "dev", "lda"]
+    env.chef_configs = ["common", "common-web", "dev", "lda"] 
 
 def production():
     """
@@ -64,8 +74,6 @@ def deploy(release=None):
     _make_release(release)
     require('pretty_release')
     require('archive')
-    if test(env.scratch_path):
-        abort("Unit tests did not pass")
     require('pretty_release')
 
     s3_source = '%(scratch_path)s/%(archive)s' % env
@@ -126,20 +134,16 @@ def spawn(ami=None, region=None, user_data=None):
     """
     Create a new server instance, different for each environment.
     """
-    require('ami')
+    require('ami', provided_by=[small, large, extra_large])
+    require('instance_type')
     require('region')
     require('user_data')
-    require('security_groups', provided_by=[base, production, development])
-    require('key_name', provided_by=[base, production, development])
+    require('security_groups')
+    require('key_name')
 
-    if ami:
-        env.ami = ami
-
-    if region:
-        env.region = region
-
-    if user_data:
-        env.user_data = user_data
+    env.ami = ami or env.ami
+    env.region = region or env.region
+    env.user_data = user_data or env.user_data
 
     print "Launching instance with image %s" % env.ami
 
@@ -147,7 +151,8 @@ def spawn(ami=None, region=None, user_data=None):
     print "Found AMI image image %s" % image
 
     user_data_file = open(env.user_data, "rb").read()
-    instance = image.run(security_groups=env.security_groups,
+    instance = image.run(instance_type=env.instance_type,
+            security_groups=env.security_groups,
             user_data=user_data_file,
             key_name=env.key_name).instances[0]
     print "%s created" % instance
@@ -157,23 +162,13 @@ def spawn(ami=None, region=None, user_data=None):
         time.sleep(20)
         print "%s is %s" % (instance, instance.state)
     print "Public DNS: %s" % instance.dns_name
+    env.host_string = '%s:%d' % (instance.dns_name, env.ssh_port)
 
     print "Waiting for Chef to finish bootstrapping the instance..."
     time.sleep(350)
-    with settings(hosts=["%s:%d" % (instance.dns_name, env.ssh_port)]):
-        get('/tmp/CHEF-STATUS', '/tmp/CHEF-STATUS')
+
+    get('/tmp/CHEF-STATUS', '/tmp/CHEF-STATUS')
     status = open("/tmp/CHEF-STATUS", "rb").read()
     if status[0] != "0":
         abort("Chef exited with non-zero status %s" % status)
     print("Chef bootstrapping completed successfully")
-
-    with settings(hosts=["%s:%d" % (instance.dns_name, env.ssh_port)]):
-        rechef()
-
-def test(dir=None):
-    if not dir:
-        dir = env.root_dir
-    with settings(root_dir=dir):
-        # TODO re-enable when rake test is fixed in chef
-        #return local('rake' % env, capture=False).return_code
-        return False
