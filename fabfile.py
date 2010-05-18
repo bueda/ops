@@ -16,21 +16,18 @@ env.scm = "git@github.com:bueda/chef"
 env.root_dir = _find_unit_root(os.path.abspath(os.path.dirname(__file__)))
 
 env.scratch_path = '/tmp/%s-%s' % (env.unit, TIME_NOW)
-env.security_groups = ["development", "ssh"]
+env.security_groups = ["temporary", "ssh"]
 env.chef_configs = []
 env.tagged = False
 env.key_name = "temporary"
 
-def temp():
-    env.security_groups.append("temporary")
-
 def small():
-    # Small AMI (Ubuntu Lucid 10.04 32-bit)
+    # Ubuntu Lucid 10.04 32-bit
     env.ami = "ami-2d4aa444"
     env.instance_type = 'm1.small'
 
 def large():
-    # Large AMI (Ubuntu Lucid 10.04 64-bit)
+    # Ubuntu Lucid 10.04 64-bit
     env.ami = 'ami-fd4aa494'
     env.instance_type = 'm1.large'
 
@@ -38,6 +35,31 @@ def extra_large():
     # Large AMI (Ubuntu Lucid 10.04 64-bit)
     env.ami = 'ami-fd4aa494'
     env.instance_type = 'm1.xlarge'
+
+def extra_large_mem():
+    # Ubuntu Lucid 10.04 64-bit
+    env.ami = 'ami-fd4aa494'
+    env.instance_type = 'm2.xlarge'
+
+def double_extra_large_mem():
+    # Ubuntu Lucid 10.04 64-bit
+    env.ami = 'ami-fd4aa494'
+    env.instance_type = 'm2.2xlarge'
+
+def quadruple_extra_large_mem():
+    # Ubuntu Lucid 10.04 64-bit
+    env.ami = 'ami-fd4aa494'
+    env.instance_type = 'm2.4xlarge'
+
+def medium_cpu():
+    # Ubuntu Lucid 10.04 64-bit
+    env.ami = 'ami-fd4aa494'
+    env.instance_type = 'c1.medium'
+
+def extra_large_cpu():
+    # Ubuntu Lucid 10.04 64-bit
+    env.ami = 'ami-fd4aa494'
+    env.instance_type = 'c1.xlarge'
 
 def chef_server():
     env.security_groups.append("chef-server")
@@ -137,7 +159,9 @@ def spawn(ami=None, region=None, user_data=None):
     """
     Create a new server instance, different for each environment.
     """
-    require('ami', provided_by=[small, large, extra_large])
+    require('ami', provided_by=[small, large, extra_large, extra_large_mem,
+            double_extra_large_mem, quadruple_extra_large_mem, medium_cpu,
+            extra_large_cpu])
     require('instance_type')
     require('region')
     require('user_data')
