@@ -192,7 +192,7 @@ def spawn(ami=None, region=None, user_data=None):
     env.host_string = '%s:%d' % (instance.dns_name, env.ssh_port)
 
     print "Waiting for Chef to finish bootstrapping the instance..."
-    time.sleep(350)
+    time.sleep(180)
 
     get('/tmp/CHEF-STATUS', '/tmp/CHEF-STATUS')
     status = open("/tmp/CHEF-STATUS", "rb").read()
