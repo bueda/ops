@@ -111,8 +111,7 @@ def spawn(ami=None, region=None, user_data=None):
         role_string = ""
         for role in env.chef_roles:
             role_string += "role[%s] " % role
-        local('knife ec2 instance data %s > %s' % (role_string, env.user_data),
-                capture=False)
+        local('knife ec2 instance data %s > %s' % (role_string, env.user_data))
     else:
         env.user_data = user_data
 
@@ -136,4 +135,4 @@ def spawn(ami=None, region=None, user_data=None):
     env.host_string = '%s:%d' % (instance.dns_name, env.ssh_port)
 
     print "Make sure to wait for Chef to finish bootstrapping the instance!"
-    local('knife node list')
+    local('knife node list', capture=False)
