@@ -1,164 +1,101 @@
+"""
+Fabfile for deploying instances with Chef to EC2.
+"""
 #!/usr/bin/env python
 import os
-from fabric.api import env, abort, require, settings, runs_once, prompt, get
-from fabric.contrib.console import confirm
-from fab_shared import (_find_unit_root, _development, _production,
-        _clone, _make_release, TIME_NOW, _make_archive,
-        _conditional_upload_to_s3, _upload_to_s3, S3_KEY, local, put, run, sudo,
-        EC2_CONNECTION)
+from fabric.api import env, require, runs_once
+from fab_shared import (_find_unit_root, _development, _production, TIME_NOW,
+        _upload_to_s3, local, put, sudo, EC2_CONNECTION)
 import time
 
 env.region = 'us-east-1b'
-env.user_data = "chef.user-data"
+env.user_data = "/tmp/chef.user-data-%s" % TIME_NOW
 
 env.unit = "chef"
 env.scm = "git@github.com:bueda/chef"
 env.root_dir = _find_unit_root(os.path.abspath(os.path.dirname(__file__)))
 
-env.scratch_path = '/tmp/%s-%s' % (env.unit, TIME_NOW)
 env.security_groups = ["temporary", "ssh"]
-env.chef_configs = []
-env.tagged = False
+env.chef_roles = ["base"]
 env.key_name = "temporary"
 
+def _32bit():
+    """ Ubuntu Lucid 10.04 32-bit, Opscode Chef AMI for Chef 0.8.x """
+    env.ami = "ami-17f51c7e"
+
+def _64bit():
+    """ Ubuntu Lucid 10.04 64-bit, Opscode Chef AMI for Chef 0.8.x """
+    env.ami = "ami-eff51c86"
+
 def small():
-    # Ubuntu Lucid 10.04 32-bit
-    env.ami = "ami-2d4aa444"
+    """ Small Instance, 1.7GB, 1 CPU (32-bit) """
+    _32bit()
     env.instance_type = 'm1.small'
 
 def large():
-    # Ubuntu Lucid 10.04 64-bit
-    env.ami = 'ami-fd4aa494'
+    """ Large Instance, 7.5GB, 4 CPU (64-bit) """
+    _64bit()
     env.instance_type = 'm1.large'
 
 def extra_large():
-    # Large AMI (Ubuntu Lucid 10.04 64-bit)
-    env.ami = 'ami-fd4aa494'
+    """ Extra Large Instance, 16GB, 8 CPU (64-bit) """
+    _64bit()
     env.instance_type = 'm1.xlarge'
 
 def extra_large_mem():
-    # Ubuntu Lucid 10.04 64-bit
-    env.ami = 'ami-fd4aa494'
+    """ High-Memory Extra Large Instance, 17.1GB, 6.5 CPU (64-bit) """
+    _64bit()
     env.instance_type = 'm2.xlarge'
 
 def double_extra_large_mem():
-    # Ubuntu Lucid 10.04 64-bit
-    env.ami = 'ami-fd4aa494'
+    """ High-Memory Double Extra Large Instance, 34.2GB, 13 CPU (64-bit) """
+    _64bit()
     env.instance_type = 'm2.2xlarge'
 
 def quadruple_extra_large_mem():
-    # Ubuntu Lucid 10.04 64-bit
-    env.ami = 'ami-fd4aa494'
+    """ High-Memory Quadruple Extra Large Instance, 68.4GB, 26 CPU (64-bit) """
+    _64bit()
     env.instance_type = 'm2.4xlarge'
 
 def medium_cpu():
-    # Ubuntu Lucid 10.04 64-bit
-    env.ami = 'ami-fd4aa494'
+    """ High-CPU Medium Instance, 1.7GB, 5 CPU (32-bit) """
+    _32bit()
     env.instance_type = 'c1.medium'
 
 def extra_large_cpu():
-    # Ubuntu Lucid 10.04 64-bit
-    env.ami = 'ami-fd4aa494'
+    """ High-CPU Extra Large Instance, 7GB, 20 CPU (64-bit) """
+    _64bit()
     env.instance_type = 'c1.xlarge'
 
-def chef_server():
-    env.security_groups.append("chef-server")
-    env.key_name = "chef-server"
-    env.chef_configs.append("server")
-
 def development():
-    """
-    [Env] Sets environment for development server.
-    """
+    """ Sets roles for development server. """
     _development()
-    env.tagged = False
-    env.security_groups = ["development", "ssh", "database-client"]
+    env.security_groups = ["development", "ssh"]
     env.key_name = "development"
-    env.chef_configs = ["common", "common-web", "dev", "lda"] 
+    env.chef_roles.extend(["base", "common", "common-web", "dev"])
 
 def production():
-    """
-    [Env] Sets environment for production servers behind load balancer.
-    """
+    """ Sets roles for production servers behind load balancer. """
     _production()
-    env.tagged = False
     env.security_groups = ["production", "ssh", "database-client"]
     env.key_name = "production"
-    env.chef_configs = ["common", "common-web", "production"]
+    env.chef_roles.extend(["base", "common", "common-web", "production"])
 
-def deploy(release=None):
-    """
-    Deploy a specific commit, tag or HEAD to all servers and/or S3.
-    """
-    require('hosts', provided_by = [development, production])
-    require('unit')
-
-    deploy_fabfile()
-
-    _clone(release)
-    _make_release(release)
-    require('pretty_release')
-    require('archive')
-    require('pretty_release')
-
-    s3_source = '%(scratch_path)s/%(archive)s' % env
-    s3_destination = 'chef.tar.gz'
-
-    _conditional_upload_to_s3(s3_source, s3_destination)
-    if confirm("Re-Chef?", default=True):
-        rechef(release=env.release)
-
-def deploy_fabfile():
+def deploy():
+    """ Deploy the shared fabfile. """
     require('hosts', provided_by = [development, production])
     print "Deploying shared fabfile..."
     put('fab_shared.py', '/tmp', mode=0755)
     sudo('mv /tmp/fab_shared.py /root')
     _upload_to_s3('fab_shared.py')
 
-
-def rechef(release=None):
-    """
-    Run the latest commit of the Chef cookbook on all servers.
-    """
-    require('chef_configs', provided_by=[development, production])
-    require('tagged')
-    archive_path = '/tmp/chef-%s.tar.gz' % TIME_NOW
-    if (not env.tagged and
-            confirm("Re-chef with production cookbook?", default=True)):
-        S3_KEY.key = '%(unit)s.tar.gz' % env
-        S3_KEY.get_contents_to_filename(archive_path)
-    else:
-        if not release:
-            env.release = prompt("Chef commit or tag?", default='HEAD')
-        _clone()
-        _make_archive()
-        require('scratch_path')
-        require('archive')
-        local('mv %s/%s %s' % (env.scratch_path, env.archive, archive_path))
-    put(archive_path, '/tmp', mode=0777)
-    run('tar -xzf %s -C /tmp' % archive_path)
-    _run_chef_solo('base')
-    for config in env.chef_configs:
-        _run_chef_solo(config)
-    run('rm -rf /tmp/%(unit)s' % env)
-
-def _run_chef_solo(config):
-    env.config = config
-    with settings(warn_only=True):
-        result = sudo("""
-            cd /tmp/%(unit)s;
-            /usr/bin/chef-solo \
-                -j /tmp/%(unit)s/config/%(config)s.json \
-                -c /tmp/%(unit)s/config/solo.rb
-            """ % env)
-    if result.failed:
-        abort("Chef run failed, %s" % result)
+def rechef():
+    """ Run the latest Chef cookbooks on all servers. """
+    sudo('chef-client')
 
 @runs_once
 def spawn(ami=None, region=None, user_data=None):
-    """
-    Create a new server instance, different for each environment.
-    """
+    """ Create a new server instance, which will bootstrap itself with Chef. """
     require('ami', provided_by=[small, large, extra_large, extra_large_mem,
             double_extra_large_mem, quadruple_extra_large_mem, medium_cpu,
             extra_large_cpu])
@@ -170,7 +107,14 @@ def spawn(ami=None, region=None, user_data=None):
 
     env.ami = ami or env.ami
     env.region = region or env.region
-    env.user_data = user_data or env.user_data
+    if not user_data:
+        role_string = ""
+        for role in env.chef_roles:
+            role_string += "role[%s] " % role
+        local('knife ec2 instance data %s > %s' % (role_string, env.user_data),
+                capture=False)
+    else:
+        env.user_data = user_data
 
     print "Launching instance with image %s" % env.ami
 
@@ -191,11 +135,5 @@ def spawn(ami=None, region=None, user_data=None):
     print "Public DNS: %s" % instance.dns_name
     env.host_string = '%s:%d' % (instance.dns_name, env.ssh_port)
 
-    print "Waiting for Chef to finish bootstrapping the instance..."
-    time.sleep(180)
-
-    get('/tmp/CHEF-STATUS', '/tmp/CHEF-STATUS')
-    status = open("/tmp/CHEF-STATUS", "rb").read()
-    if status[0] != "0":
-        abort("Chef exited with non-zero status %s" % status)
-    print("Chef bootstrapping completed successfully")
+    print "Make sure to wait for Chef to finish bootstrapping the instance!"
+    local('knife node list')
