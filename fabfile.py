@@ -72,14 +72,14 @@ def development():
     _development()
     env.security_groups = ["development", "ssh"]
     env.key_name = "development"
-    env.chef_roles.extend(["base", "common", "common-web", "dev"])
+    env.chef_roles.extend(["web", "dev"])
 
 def production():
     """ Sets roles for production servers behind load balancer. """
     _production()
     env.security_groups = ["production", "ssh", "database-client"]
     env.key_name = "production"
-    env.chef_roles.extend(["base", "common", "common-web", "production"])
+    env.chef_roles.extend(["web", "production"])
 
 def deploy():
     """ Deploy the shared fabfile. """
