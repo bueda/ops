@@ -134,5 +134,6 @@ def spawn(ami=None, region=None, user_data=None):
     print "Public DNS: %s" % instance.dns_name
     env.host_string = '%s:%d' % (instance.dns_name, env.ssh_port)
 
-    print "Make sure to wait for Chef to finish bootstrapping the instance!"
+    print "Waiting for Chef to finish bootstrapping the instance..."
+    time.sleep(30)
     local('knife node list', capture=False)
