@@ -135,5 +135,5 @@ def spawn(ami=None, region=None, user_data=None):
     env.host_string = '%s:%d' % (instance.dns_name, env.ssh_port)
 
     print "Waiting for Chef to finish bootstrapping the instance..."
-    time.sleep(30)
+    time.sleep(60)
     local('knife node list', capture=False)
