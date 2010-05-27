@@ -106,6 +106,7 @@ def spawn(ami=None, region=None, user_data=None):
     require('security_groups')
     require('key_name')
 
+    _upload_to_s3('fab_shared.py')
     env.ami = ami or env.ami
     env.region = region or env.region
     if not user_data:
