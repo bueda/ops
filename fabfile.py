@@ -5,7 +5,8 @@ Fabfile for deploying instances with Chef to EC2.
 import os
 from fabric.api import env, require, runs_once
 from fab_shared import (_find_unit_root, _development, _production, TIME_NOW,
-        _upload_to_s3, local, put, sudo, EC2_CONNECTION)
+        _upload_to_s3, local, put, sudo, EC2_CONNECTION, elb_add,
+        elb_remove)
 import time
 
 env.region = 'us-east-1b'
