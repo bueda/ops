@@ -95,7 +95,7 @@ def rechef():
     sudo('chef-client')
 
 @runs_once
-def spawn(ami=None, region=None, user_data=None):
+def spawn(ami=None, region=None, user_data=None, chef_roles=None):
     """ Create a new server instance, which will bootstrap itself with Chef. """
     require('ami', provided_by=[small, large, extra_large, extra_large_mem,
             double_extra_large_mem, quadruple_extra_large_mem, medium_cpu,
@@ -111,6 +111,8 @@ def spawn(ami=None, region=None, user_data=None):
     env.region = region or env.region
     if not user_data:
         role_string = ""
+        if chef_roles:
+            env.chef_roles.extend(chef_roles.split(','))
         for role in env.chef_roles:
             role_string += "role[%s] " % role
         local('knife ec2 instance data %s > %s' % (role_string, env.user_data))
