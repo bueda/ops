@@ -4,7 +4,7 @@ Fabfile for deploying instances with Chef to EC2.
 #!/usr/bin/env python
 import os
 from fabric.api import env, require, runs_once
-from fab_shared import (_find_unit_root, _development, _production, TIME_NOW,
+from fab_shared import (_development, _production, TIME_NOW,
         _upload_to_s3, local, put, sudo, EC2_CONNECTION, elb_add,
         elb_remove)
 import time
@@ -14,7 +14,7 @@ env.user_data = "/tmp/chef.user-data-%s" % TIME_NOW
 
 env.unit = "chef"
 env.scm = "git@github.com:bueda/chef"
-env.root_dir = _find_unit_root(os.path.abspath(os.path.dirname(__file__)))
+env.root_dir = os.path.abspath(os.path.dirname(__file__))
 
 env.security_groups = ["temporary", "ssh"]
 env.chef_roles = ["base"]
