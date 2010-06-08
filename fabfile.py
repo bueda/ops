@@ -84,10 +84,10 @@ def production():
 
 def deploy():
     """ Deploy the shared fabfile. """
-    require('hosts', provided_by = [development, production])
-    print "Deploying shared fabfile..."
-    put('fab_shared.py', '/tmp', mode=0755)
-    sudo('mv /tmp/fab_shared.py /root')
+    if len(env.hosts) > 0:
+        print "Deploying shared fabfile..."
+        put('fab_shared.py', '/tmp', mode=0755)
+        sudo('mv /tmp/fab_shared.py /root')
     _upload_to_s3('fab_shared.py')
 
 def rechef():
