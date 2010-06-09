@@ -1,2 +1,3 @@
 fabric
 boto
+prettyprint
