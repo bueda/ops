@@ -5,8 +5,7 @@ Fabfile for deploying instances with Chef to EC2.
 import os
 from fabric.api import env, require, runs_once
 from fab_shared import (_development, _production, TIME_NOW,
-        _upload_to_s3, local, put, sudo, EC2_CONNECTION, elb_add,
-        elb_remove)
+        _upload_to_s3, local, put, sudo, elb_add, elb_remove)
 import time
 
 env.region = 'us-east-1b'
@@ -105,6 +104,7 @@ def spawn(ami=None, region=None, user_data=None, chef_roles=None):
     require('user_data')
     require('security_groups')
     require('key_name')
+    require('ec2_connection')
 
     _upload_to_s3('fab_shared.py')
     env.ami = ami or env.ami
@@ -121,7 +121,7 @@ def spawn(ami=None, region=None, user_data=None, chef_roles=None):
 
     print "Launching instance with image %s" % env.ami
 
-    image = EC2_CONNECTION.get_image(env.ami)
+    image = env.ec2_connection.get_image(env.ami)
     print "Found AMI image image %s" % image
 
     user_data_file = open(env.user_data, "rb").read()
