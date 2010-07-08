@@ -94,14 +94,13 @@ def rechef():
     sudo('chef-client')
 
 @runs_once
-def spawn(ami=None, region=None, user_data=None, chef_roles=None):
+def spawn(ami=None, region=None, chef_roles=None):
     """ Create a new server instance, which will bootstrap itself with Chef. """
     require('ami', provided_by=[small, large, extra_large, extra_large_mem,
             double_extra_large_mem, quadruple_extra_large_mem, medium_cpu,
             extra_large_cpu])
     require('instance_type')
     require('region')
-    require('user_data')
     require('security_groups')
     require('key_name')
     require('ec2_connection')
@@ -109,35 +108,19 @@ def spawn(ami=None, region=None, user_data=None, chef_roles=None):
     _upload_to_s3('fab_shared.py')
     env.ami = ami or env.ami
     env.region = region or env.region
-    if not user_data:
-        role_string = ""
-        if chef_roles:
-            env.chef_roles.extend(chef_roles.split(','))
-        for role in env.chef_roles:
-            role_string += "role[%s] " % role
-        local('knife ec2 instance data %s > %s' % (role_string, env.user_data))
-    else:
-        env.user_data = user_data
+
+    role_string = ""
+    if chef_roles:
+        env.chef_roles.extend(chef_roles.split(','))
+    for role in env.chef_roles:
+        role_string += "role[%s] " % role
 
     print "Launching instance with image %s" % env.ami
-
-    image = env.ec2_connection.get_image(env.ami)
-    print "Found AMI image image %s" % image
-
-    user_data_file = open(env.user_data, "rb").read()
-    instance = image.run(instance_type=env.instance_type,
-            security_groups=env.security_groups,
-            user_data=user_data_file,
-            key_name=env.key_name).instances[0]
-    print "%s created" % instance
-    time.sleep(5)
-
-    while instance.update() != 'running':
-        time.sleep(20)
-        print "%s is %s" % (instance, instance.state)
-    print "Public DNS: %s" % instance.dns_name
-    env.host_string = '%s:%d' % (instance.dns_name, env.ssh_port)
-
-    print "Waiting for Chef to finish bootstrapping the instance..."
-    time.sleep(60)
-    local('knife node list', capture=False)
+    command = 'knife ec2 server create %s ' % role_string
+    command += '-Z %(region)s ' % env
+    command += '-A %(aws_access_key)s -K %(aws_secret_key)s ' % env
+    command += '-f %(instance_type)s -i %(ami)s ' % env
+    command += '-G %s ' % ','.join(env.security_groups)
+    command += '-S %(key_name)s ' % env
+    command += '-x ubuntu '
+    local(command, capture=False)
