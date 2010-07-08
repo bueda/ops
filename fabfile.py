@@ -21,11 +21,11 @@ env.key_name = "temporary"
 
 def _32bit():
     """ Ubuntu Lucid 10.04 32-bit, Opscode Chef AMI for Chef 0.8.x """
-    env.ami = "ami-17f51c7e"
+    env.ami = "ami-2d4aa444"
 
 def _64bit():
     """ Ubuntu Lucid 10.04 64-bit, Opscode Chef AMI for Chef 0.8.x """
-    env.ami = "ami-eff51c86"
+    env.ami = "ami-fd4aa494"
 
 def small():
     """ Small Instance, 1.7GB, 1 CPU (32-bit) """
@@ -115,7 +115,8 @@ def spawn(ami=None, region=None, chef_roles=None):
     for role in env.chef_roles:
         role_string += "role[%s] " % role
 
-    print "Launching instance with image %s" % env.ami
+    local('ssh-add ~/.ssh/%(key_name)s.pem' % env)
+
     command = 'knife ec2 server create %s ' % role_string
     command += '-Z %(region)s ' % env
     command += '-A %(aws_access_key)s -K %(aws_secret_key)s ' % env
@@ -123,4 +124,6 @@ def spawn(ami=None, region=None, chef_roles=None):
     command += '-G %s ' % ','.join(env.security_groups)
     command += '-S %(key_name)s ' % env
     command += '-x ubuntu '
-    local(command, capture=False)
+
+    print "Run this command to spawn the server:\n"
+    print command
