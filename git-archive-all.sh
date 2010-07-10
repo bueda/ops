@@ -15,7 +15,7 @@
 #              where $GIT_DIR is the root of your git superproject.
 
 # DEBUGGING
-set -e
+#set -e
 set -C # noclobber
 
 # TRAP SIGNALS
