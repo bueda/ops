@@ -87,6 +87,9 @@ def deploy():
         print "Deploying shared fabfile..."
         put('fab_shared.py', '/tmp', mode=0755)
         sudo('mv /tmp/fab_shared.py /root')
+        print "Deploying git-archive-all.sh..."
+        put('git-archive-all.sh', '/tmp', mode=0755)
+        sudo('mv /tmp/git-archive-all.sh /root')
     _upload_to_s3('fab_shared.py')
 
 def rechef():
