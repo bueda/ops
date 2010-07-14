@@ -9,14 +9,13 @@ from fab_shared import (_development, _production, TIME_NOW,
 import time
 
 env.region = 'us-east-1b'
-env.user_data = "/tmp/chef.user-data-%s" % TIME_NOW
+env.chef_roles = ["base"]
 
 env.unit = "chef"
 env.scm = "git@github.com:bueda/chef"
 env.root_dir = os.path.abspath(os.path.dirname(__file__))
 
 env.security_groups = ["temporary", "ssh"]
-env.chef_roles = ["base"]
 env.key_name = "temporary"
 
 def _32bit():
@@ -72,14 +71,28 @@ def development():
     _development()
     env.security_groups = ["development", "ssh"]
     env.key_name = "development"
-    env.chef_roles.extend(["web", "dev"])
+    env.chef_roles = ["dev"]
 
 def production():
     """ Sets roles for production servers behind load balancer. """
     _production()
-    env.security_groups = ["production", "ssh", "database-client"]
+    env.security_groups = ["ssh", "database-client"]
     env.key_name = "production"
-    env.chef_roles.extend(["web", "production"])
+
+def lace():
+    production()
+    env.chef_roles = ["lace"]
+    env.security_groups.extend(["lace"])
+
+def web():
+    production()
+    env.chef_roles = ["company", "five"]
+    env.security_groups.extend(["web", "five"])
+
+def api():
+    production()
+    env.chef_roles = ["api"]
+    env.security_groups.extend(["api"])
 
 def deploy():
     """ Deploy the shared fabfile. """
