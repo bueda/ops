@@ -2,3 +2,4 @@ fabric
 boto
 prettyprint
 hoppy
+http://bueda.public.s3.amazonaws.com/pinder-0a34823.tar.gz
