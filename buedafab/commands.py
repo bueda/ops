@@ -4,7 +4,7 @@ import os
 from buedafab.operations import run, exists, conditional_rm, sed, sudo
 from buedafab import environments, deploy
 
-def _setup():
+def setup():
     environments.localhost()
     local('git submodule init')
     local('git submodule update')

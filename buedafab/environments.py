@@ -1,7 +1,7 @@
 from fabric.api import require, env
 import os
 
-from buedafab import environments, aws
+from buedafab import aws
 
 def _not_production():
     env.scratch_path = env.root_dir
@@ -67,18 +67,18 @@ def localhost(deployment_type=None):
         env.pip_requirements += env.pip_requirements_dev
 
 def django_development():
-    environments.development()
+    development()
     env.extra_fixtures += ["dev"]
     env.crontab = os.path.join('scripts', 'crontab', 'development')
 
 def django_staging():
-    environments.staging()
+    staging()
     env.crontab = os.path.join('scripts', 'crontab', 'production')
 
 def django_production():
-    environments.production()
+    production()
     env.crontab = os.path.join('scripts', 'crontab', 'production')
 
 def django_localhost(deployment_type=None):
-    environments.localhost(deployment_type)
+    localhost(deployment_type)
 

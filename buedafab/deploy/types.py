@@ -1,14 +1,20 @@
-from fabric.api import warn, cd, require, local, env
+from fabric.api import warn, cd, require, local, env, settings, abort
 import os
 
 from buedafab.operations import run, sed
-from buedafab import celery, db, commands, notify, testing, utils
+from buedafab import celery, db, commands, notify, testing, utils, testing
 from buedafab import deploy
 
-# TODO why isn't skip tests used? where did test running go?
 def _git_deploy(release, skip_tests):
     starting_branch = local("git symbolic-ref HEAD 2>/dev/null "
             "| awk -F/ {'print $NF'}")
+    # Ideally, tests would run on the version you are deploying exactly.
+    # There is no easy way to require that without allowing users to go
+    # through the entire tagging process before failing tests.
+    with settings(root_dir=env.scratch_path):
+        if not skip_tests and testing.test():
+            abort("Unit tests did not pass -- must fix before deploying")
+
     local('git push %(master_remote)s' % env)
     deploy.release.make_release(release)
 
@@ -47,7 +53,7 @@ def _git_deploy(release, skip_tests):
     local('git checkout %s' % starting_branch)
     return deployed, hard_reset
 
-def _webpy_deploy(release=None, skip_tests=None):
+def webpy_deploy(release=None, skip_tests=None):
     require('hosts')
     require('path')
     require('unit')
@@ -60,7 +66,7 @@ def _webpy_deploy(release=None, skip_tests=None):
     commands.restart_webserver(hard_reset)
     notify.hoptoad_deploy(deployed)
 
-def _django_deploy(release=None, skip_tests=None):
+def django_deploy(release=None, skip_tests=None):
     require('hosts')
     require('path')
     require('unit')
