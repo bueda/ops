@@ -28,7 +28,7 @@ def _git_deploy(release, skip_tests):
     deployed_versions = {}
     deploy.release.bootstrap_release_folders()
     for release_path in env.release_paths:
-        with cd(os.path.join(env.path, release_path)):
+        with cd(os.path.join(env.path, env.releases_root, release_path)):
             deployed_versions[run('git describe')] = release_path
     if env.pretty_release not in deployed_versions:
         env.release_path = deploy.release.alternative_release_path()

@@ -11,12 +11,12 @@ def bootstrap_release_folders():
     require('path')
     require('deploy_group')
     conditional_mkdir(env.path, env.deploy_group, 'g+w', use_sudo=True)
-    with cd(env.path):
+    with cd(os.path.join(env.path, env.releases_root)):
         first_exists = exists(env.release_paths[0])
         if not first_exists:
             run('git clone %s %s' % (env.scm, env.release_paths[0]),
                     forward_agent=True)
-    with cd(env.path):
+    with cd(os.path.join(env.path, env.releases_root)):
         if not exists(env.release_paths[1]):
             run('cp -R %s %s' % (env.release_paths[0], env.release_paths[1]))
 
