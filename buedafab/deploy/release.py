@@ -84,6 +84,7 @@ def make_release(release=None):
     make_pretty_release()
 
 def conditional_symlink_current_release(deployed=False):
+    from nose.tools import set_trace; set_trace(); # TODO
     if exists(utils.absolute_release_path()):
         with cd(utils.absolute_release_path()):
             current_version = run('git describe')

@@ -47,7 +47,7 @@ def _install_private_package(package, scm=None, release=None):
     if env.virtualenv is not None:
         require('release_path')
         require('path')
-        with cd(os.path.join(env.path, env.release_path)):
+        with cd(env.release_path):
             run('%s -E %s -s %s'
                     % (env.pip_install_command, env.virtualenv, archive_path))
     else:
@@ -59,7 +59,7 @@ def _install_pip_requirements(path=None):
         require('pretty_release')
         require('virtualenv')
         require('pip_requirements')
-        path = os.path.join(env.path, env.release_path)
+        path = env.release_path
     if not env.pip_requirements:
         warn("No pip requirements files found -- %(pip_requirements)s"
                 % env)
@@ -74,7 +74,7 @@ def install_requirements(deployed=False):
     require('release_path')
     require('virtualenv')
 
-    with settings(cd(os.path.join(env.path, env.release_path)), warn_only=True):
+    with settings(cd(env.release_path), warn_only=True):
         virtualenv_exists = exists('%(virtualenv)s' % env)
     if (deployed or not virtualenv_exists or
             confirm("Reinstall Python dependencies?", default=True)):

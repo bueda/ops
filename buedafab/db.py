@@ -12,7 +12,7 @@ def load_data():
     require('deployment_type')
     require('virtualenv')
     if env.migrated or env.updated_db:
-        with cd(os.path.join(env.path, env.release_path)):
+        with cd(env.release_path):
             for fixture in env.extra_fixtures:
                 env.fixture = fixture
                 run("""
@@ -27,7 +27,7 @@ def migrate(deployed=False):
     require('deployment_type')
     require('virtualenv')
     if (env.migrate and deployed or confirm("Migrate database?", default=True)):
-        with cd(os.path.join(env.path, env.release_path)):
+        with cd(env.release_path):
             run("""
                 export DEPLOYMENT_TYPE="%(deployment_type)s"
                     %(virtualenv)s/bin/python ./manage.py migrate
@@ -41,7 +41,7 @@ def update_db(deployed=False):
     require('virtualenv')
     require('release_path')
     if deployed or confirm("Update database?", default=True):
-        with cd(os.path.join(env.path, env.release_path)):
+        with cd(env.release_path):
             run("""
                 export DEPLOYMENT_TYPE="%(deployment_type)s"
                 %(virtualenv)s/bin/python ./manage.py syncdb --noinput

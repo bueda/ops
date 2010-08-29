@@ -31,22 +31,23 @@ def _git_deploy(release, skip_tests):
         with cd(os.path.join(env.path, env.releases_root, release_path)):
             deployed_versions[run('git describe')] = release_path
     if env.pretty_release not in deployed_versions:
-        env.release_path = deploy.release.alternative_release_path()
-        with cd(os.path.join(env.path, env.release_path)):
+        env.release_path = os.path.join(env.path, env.releases_root,
+                deploy.release.alternative_release_path())
+        with cd(env.release_path):
             run('git fetch %(master_remote)s' % env, forward_agent=True)
             run('git reset --hard %(release)s' % env)
             run('git submodule init')
             run('git submodule update', forward_agent=True)
-        sed(os.path.join(env.path, env.release_path, env.wsgi),
-                'PRODUCTION', env.deployment_type)
-        deploy.cron.conditional_install_crontab(
-                os.path.join(env.path, env.release_path), env.crontab,
+        sed(os.path.join(env.release_path, env.wsgi), 'PRODUCTION',
+                env.deployment_type)
+        deploy.cron.conditional_install_crontab(env.release_path, env.crontab,
                 env.deploy_user)
         deployed = True
     else:
         warn("%(pretty_release)s is already deployed" % env)
-        env.release_path = deployed_versions[env.pretty_release]
-        with cd(os.path.join(env.path, env.release_path)):
+        env.release_path = os.path.join(env.path, env.releases_root,
+                deployed_versions[env.pretty_release])
+        with cd(env.release_path):
             run('git submodule init')
             run('git submodule update', forward_agent=True)
     hard_reset = deploy.packages.install_requirements(deployed)
