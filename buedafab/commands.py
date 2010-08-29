@@ -2,7 +2,7 @@ from fabric.api import require, env, local, warn, settings, cd
 import os
 
 from buedafab.operations import run, exists, conditional_rm, sed, sudo
-from buedafab import environments, deploy
+from buedafab import environments, deploy, utils
 
 def setup():
     environments.localhost()
@@ -26,8 +26,7 @@ def maintenancemode():
     require('current_release_path')
     require('settings')
 
-    settings_file = os.path.join(env.path, env.current_release_path,
-            env.settings)
+    settings_file = os.path.join(utils.absolute_release_path(), env.settings)
     if exists(settings_file):
         sed(settings_file, '(MAINTENANCE_MODE = )(False|True)',
                 '\\1%(toggle)s' % env)
@@ -40,11 +39,11 @@ def rollback():
     Swaps the current and previous release that was deployed.
     """
     require('path')
-    with cd(env.path):
+    with cd(os.path.join(env.path, env.releases_root)):
         previous_link = deploy.release.alternative_release_path()
-        conditional_rm(env.current_release_path)
-        run('ln -s %s %s' % (previous_link, env.current_release_path))
-    deploy.cron.conditional_install_crontab(os.path.join(env.path, env.current_release_path),
+        conditional_rm(env.current_release_symlink)
+        run('ln -s %s %s' % (previous_link, env.current_release_symlink))
+    deploy.cron.conditional_install_crontab(utils.absolute_release_path(),
             env.crontab, env.deploy_user)
     restart_webserver()
 
@@ -57,5 +56,4 @@ def restart_webserver(hard_reset=False):
     else:
         require('path')
         require('wsgi')
-        run('touch %s' % os.path.join(env.path, env.current_release_path,
-                env.wsgi))
+        run('touch %s' % os.path.join(utils.absolute_release_path(), env.wsgi))

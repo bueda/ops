@@ -84,23 +84,22 @@ def make_release(release=None):
     make_pretty_release()
 
 def conditional_symlink_current_release(deployed=False):
-    if exists(os.path.join(env.path, env.current_release_path)):
-        with cd(os.path.join(env.path, env.current_release_path)):
+    if exists(utils.absolute_release_path()):
+        with cd(utils.absolute_release_path()):
             current_version = run('git describe')
-    if (not exists(os.path.join(env.path, env.current_release_path)) 
+    if (not exists(utils.absolute_release_path())
             or deployed or current_version != env.pretty_release):
         next_release_path = alternative_release_path()
         symlink_current_release(next_release_path)
 
 def symlink_current_release(next_release_path):
-    with cd(env.path):
-        conditional_rm(env.current_release_path)
-        run('ln -s %s %s' % (next_release_path, env.current_release_path))
+    with cd(os.path.join(env.path, env.releases_root)):
+        conditional_rm(env.current_release_symlink)
+        run('ln -s %s %s' % (next_release_path, env.current_release_symlink))
 
 def alternative_release_path():
-    if exists(os.path.join(env.path, env.current_release_path)):
-        with cd(env.path):
-            current_release_path = run('readlink %s' % env.current_release_path)
+    if exists(utils.absolute_release_path()):
+        current_release_path = run('readlink %s' % utils.absolute_release_path())
         if current_release_path == env.release_paths[0]:
             alternative = env.release_paths[1]
         else:

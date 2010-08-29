@@ -1,4 +1,5 @@
 from fabric.api import env, local, require
+import os
 
 def compare_versions(x, y):
     """
@@ -39,3 +40,7 @@ def sha_url():
         subdomain = env.deployment_type.lower() + '.'
     return env.sha_url_template % subdomain
 
+def absolute_release_path():
+    require('path')
+    require('current_release_path')
+    return os.path.join(env.path, env.current_release_path)
