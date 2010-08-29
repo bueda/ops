@@ -1,4 +1,4 @@
-from fabric.api import cd, require, local, env, prompt
+from fabric.api import cd, require, local, env, prompt, settings
 from fabric.contrib.console import confirm
 from fabric.decorators import runs_once
 import os
@@ -25,13 +25,15 @@ def make_pretty_release():
     require('scratch_path')
     require('default_revision')
     with cd(env.scratch_path):
-        revision = local('git rev-list %(default_revision)s '
-                '-n 1 --abbrev-commit --abbrev=7' % env)
-        env.head_commit = revision.rstrip('\n')
-    with cd(env.scratch_path):
         env.pretty_release = local(
             'git describe %(release)s' % env).rstrip('\n')
     env.archive = '%(pretty_release)s-%(unit)s.tar' % env
+
+def make_head_commit():
+    with cd(env.scratch_path):
+        revision = local('git rev-list %(default_revision)s '
+                '-n 1 --abbrev-commit --abbrev=7' % env)
+        env.head_commit = revision.rstrip('\n')
 
 @runs_once
 def make_release(release=None):
@@ -76,7 +78,8 @@ def make_release(release=None):
                 print("Using latest tag %(latest_tag)s" % env)
                 env.release = env.latest_tag
         else:
-            env.release = env.commit
+            make_head_commit()
+            env.release = env.head_commit
     else:
         with cd(env.scratch_path):
             local('git checkout %s' % env.release)
@@ -84,14 +87,13 @@ def make_release(release=None):
     make_pretty_release()
 
 def conditional_symlink_current_release(deployed=False):
-    from nose.tools import set_trace; set_trace(); # TODO
+    current_version = None
     if exists(utils.absolute_release_path()):
-        with cd(utils.absolute_release_path()):
+        with settings(cd(utils.absolute_release_path()), warn_only=True):
             current_version = run('git describe')
     if (not exists(utils.absolute_release_path())
             or deployed or current_version != env.pretty_release):
-        next_release_path = alternative_release_path()
-        symlink_current_release(next_release_path)
+        symlink_current_release(env.release_path)
 
 def symlink_current_release(next_release_path):
     with cd(os.path.join(env.path, env.releases_root)):

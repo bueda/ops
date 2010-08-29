@@ -55,10 +55,10 @@ def _install_private_package(package, scm=None, release=None):
 
 
 def _install_pip_requirements(path=None):
+    require('virtualenv')
+    require('pip_requirements')
     if not path:
-        require('pretty_release')
-        require('virtualenv')
-        require('pip_requirements')
+        require('release_path')
         path = env.release_path
     if not env.pip_requirements:
         warn("No pip requirements files found -- %(pip_requirements)s"

@@ -4,7 +4,7 @@ import os
 
 env.time_now = datetime.datetime.now().strftime("%H%M%S-%d%m%Y")
 env.version_pattern = r'^v\d+(\.\d+)+?$'
-env.pip_install_command = 'pip install -i http://d.pypi.python.org/simple --upgrade'
+env.pip_install_command = 'pip install -i http://d.pypi.python.org/simple'
 
 env.releases_root = 'releases'
 env.current_release_symlink = 'current'
