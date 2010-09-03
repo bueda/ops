@@ -1,6 +1,5 @@
 from fabric.api import env, require, cd, local
 from fabric.decorators import runs_once
-from pinder import Campfire
 import os
 
 @runs_once
@@ -29,6 +28,7 @@ def campfire_notify(deployed=False):
 
     if (deployed and env.hoptoad_api_key and env.campfire_token
             and env.campfire_room):
+        from pinder import Campfire
         with cd(env.scratch_path):
             deploying = local('git rev-parse --short %(release)s' % env)
             branch = local("git symbolic-ref %(release)s 2>/dev/null "
