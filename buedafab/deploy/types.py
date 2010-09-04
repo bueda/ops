@@ -11,9 +11,8 @@ def _git_deploy(release, skip_tests):
     # Ideally, tests would run on the version you are deploying exactly.
     # There is no easy way to require that without allowing users to go
     # through the entire tagging process before failing tests.
-    with settings(root_dir=env.scratch_path):
-        if not skip_tests and testing.test():
-            abort("Unit tests did not pass -- must fix before deploying")
+    if not skip_tests and testing.test():
+        abort("Unit tests did not pass -- must fix before deploying")
 
     local('git push %(master_remote)s' % env)
     deploy.release.make_release(release)

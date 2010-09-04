@@ -9,8 +9,7 @@ def hoptoad_deploy(deployed=False):
     require('release')
     require('scm')
     if deployed and env.hoptoad_api_key:
-        with cd(env.scratch_path):
-            commit = local('git rev-parse --short %(release)s' % env)
+        commit = local('git rev-parse --short %(release)s' % env)
         import hoppy.deploy
         hoppy.api_key = env.hoptoad_api_key
         hoppy.deploy.Deploy().deploy(
@@ -29,10 +28,9 @@ def campfire_notify(deployed=False):
     if (deployed and env.hoptoad_api_key and env.campfire_token
             and env.campfire_room):
         from pinder import Campfire
-        with cd(env.scratch_path):
-            deploying = local('git rev-parse --short %(release)s' % env)
-            branch = local("git symbolic-ref %(release)s 2>/dev/null "
-                    "| awk -F/ {'print $NF'}" % env)
+        deploying = local('git rev-parse --short %(release)s' % env)
+        branch = local("git symbolic-ref %(release)s 2>/dev/null "
+                "| awk -F/ {'print $NF'}" % env)
 
         if env.tagged:
             require('release')

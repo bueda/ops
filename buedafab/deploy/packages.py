@@ -7,8 +7,7 @@ from buedafab import deploy
 
 def _read_private_requirements():
     for private_requirements in env.private_requirements:
-        with open(
-                os.path.join(env.scratch_path, private_requirements), 'r') as f:
+        with open(os.path.join(env.root_dir, private_requirements), 'r') as f:
             for requirement in f:
                 yield requirement.strip().split('==')
 

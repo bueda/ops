@@ -3,9 +3,6 @@ import os
 
 from buedafab import aws
 
-def _not_production():
-    env.scratch_path = env.root_dir
-
 def _not_localhost():
     if (hasattr(env, 'pip_requirements')
             and hasattr(env, 'pip_requirements_production')):
@@ -15,7 +12,6 @@ def development():
     """
     [Env] Development server environment
     """
-    _not_production()
     _not_localhost()
     if len(env.hosts) == 0:
         env.hosts = ['dev.bueda.com:%(ssh_port)d' % env]
@@ -26,7 +22,6 @@ def staging():
     """
     [Env] Staging server environment
     """
-    _not_production()
     _not_localhost()
     if len(env.hosts) == 0:
         env.hosts = ['dev.bueda.com:%(ssh_port)d' % env]
@@ -44,7 +39,6 @@ def production():
     if hasattr(env, 'load_balancer'):
         if len(env.hosts) == 0:
             env.hosts = aws.collect_load_balanced_instances()
-    env.scratch_path = os.path.join('/tmp','%s-%s' % (env.unit, env.time_now))
     env.default_revision = '%(master_remote)s/master' % env
 
 def localhost(deployment_type=None):
@@ -52,7 +46,6 @@ def localhost(deployment_type=None):
     [Env] Bootstrap the localhost - can be either dev, production or staging.
     """
     require('root_dir')
-    _not_production()
     if len(env.hosts) == 0:
         env.hosts = ['localhost']
     env.allow_no_tag = True

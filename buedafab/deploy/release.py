@@ -22,32 +22,27 @@ def bootstrap_release_folders():
 
 def make_pretty_release():
     require('release')
-    require('scratch_path')
     require('default_revision')
-    with cd(env.scratch_path):
-        env.pretty_release = local(
-            'git describe %(release)s' % env).rstrip('\n')
+    env.pretty_release = local(
+        'git describe %(release)s' % env).rstrip('\n')
     env.archive = '%(pretty_release)s-%(unit)s.tar' % env
 
 def make_head_commit():
-    with cd(env.scratch_path):
-        revision = local('git rev-list %(default_revision)s '
-                '-n 1 --abbrev-commit --abbrev=7' % env)
-        env.head_commit = revision.rstrip('\n')
+    revision = local('git rev-list %(default_revision)s '
+            '-n 1 --abbrev-commit --abbrev=7' % env)
+    env.head_commit = revision.rstrip('\n')
 
 @runs_once
 def make_release(release=None):
     require('allow_no_tag')
-    require('scratch_path')
     require('default_revision')
 
     env.release = release
     env.tagged = False
     if not env.release or env.release == 'latest_tag':
-        with cd(env.scratch_path):
-            if not env.allow_no_tag:
-                local('git checkout master')
-            description = local('git describe master' % env).rstrip('\n')
+        if not env.allow_no_tag:
+            local('git checkout master')
+        description = local('git describe master' % env).rstrip('\n')
         if '-' in description:
             env.latest_tag = description[:description.find('-')]
         else:
@@ -59,20 +54,19 @@ def make_release(release=None):
         if not env.allow_no_tag:
             if confirm("Tag this release?", default=False):
                 require('master_remote')
-                with cd(env.scratch_path):
-                    from prettyprint import pp
-                    print("The last 5 tags were: ")
-                    tags = local('git tag | tail -n 20')
-                    pp(sorted(tags.split('\n'), utils.compare_versions,
-                            reverse=True))
-                    prompt("New release tag in the format vX.Y[.Z]?",
-                            'tag',
-                            validate=env.version_pattern)
-                    require('commit')
-                    local('git tag -s %(tag)s %(commit)s' % env, capture=False)
-                    local('git push --tags %(master_remote)s' % env)
-                    env.tagged = True
-                    env.release = env.tag
+                from prettyprint import pp
+                print("The last 5 tags were: ")
+                tags = local('git tag | tail -n 20')
+                pp(sorted(tags.split('\n'), utils.compare_versions,
+                        reverse=True))
+                prompt("New release tag in the format vX.Y[.Z]?",
+                        'tag',
+                        validate=env.version_pattern)
+                require('commit')
+                local('git tag -s %(tag)s %(commit)s' % env, capture=False)
+                local('git push --tags %(master_remote)s' % env)
+                env.tagged = True
+                env.release = env.tag
                 local('git fetch --tags %(master_remote)s' % env)
             else:
                 print("Using latest tag %(latest_tag)s" % env)
@@ -81,8 +75,7 @@ def make_release(release=None):
             make_head_commit()
             env.release = env.head_commit
     else:
-        with cd(env.scratch_path):
-            local('git checkout %s' % env.release)
+        local('git checkout %s' % env.release)
         env.tagged = re.match(env.version_pattern, env.release)
     make_pretty_release()
 
