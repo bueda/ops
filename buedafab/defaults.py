@@ -27,6 +27,7 @@ env.updated_db = False
 env.migrated = False
 env.celeryd = None
 env.hoptoad_api_key = None
+env.campfire_token = None
 env.sha_url_template = None
 
 # TODO open source the now deleted upload_to_s3 utils
