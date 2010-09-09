@@ -6,11 +6,24 @@ from fabric.api import env
 
 def _32bit():
     """ Ubuntu Lucid 10.04 32-bit, Opscode Chef AMI for Chef 0.8.x """
-    env.ami = "ami-2d4aa444"
+    env.ami = "ami-1437dd7d"
+
+def _32bit_ebs():
+    """ Ubuntu Lucid 10.04 32-bit, Opscode Chef AMI for Chef 0.8.x """
+    env.ami = "ami-1234de7b"
+
+def _64bit_ebs():
+    """ Ubuntu Lucid 10.04 64-bit, Opscode Chef AMI for Chef 0.8.x """
+    env.ami = "ami-1634de7f"
 
 def _64bit():
     """ Ubuntu Lucid 10.04 64-bit, Opscode Chef AMI for Chef 0.8.x """
-    env.ami = "ami-fd4aa494"
+    env.ami = "ami-4234de2b"
+
+def micro():
+    """ Micro instance, 613MB, up to 2 CPU (64-bit) """
+    _64bit_ebs()
+    env.instance_type = 't1.micro'
 
 def small():
     """ Small Instance, 1.7GB, 1 CPU (32-bit) """
