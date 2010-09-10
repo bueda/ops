@@ -19,7 +19,6 @@ def _git_deploy(release, skip_tests):
 
     require('pretty_release')
     require('path')
-    require('wsgi')
     require('hosts')
 
     deployed = False
@@ -35,8 +34,6 @@ def _git_deploy(release, skip_tests):
         with cd(env.release_path):
             run('git fetch %(master_remote)s' % env, forward_agent=True)
             run('git reset --hard %(release)s' % env)
-        sed(os.path.join(env.release_path, env.wsgi), 'PRODUCTION',
-                env.deployment_type)
         deploy.cron.conditional_install_crontab(env.release_path, env.crontab,
                 env.deploy_user)
         deployed = True
@@ -55,7 +52,6 @@ def webpy_deploy(release=None, skip_tests=None):
     require('hosts')
     require('path')
     require('unit')
-    require('wsgi')
 
     env.test_runner = testing.webpy_test_runner
 
@@ -69,7 +65,6 @@ def django_deploy(release=None, skip_tests=None):
     require('path')
     require('unit')
     require('migrate')
-    require('wsgi')
     require('root_dir')
 
     env.test_runner = testing.django_test_runner
