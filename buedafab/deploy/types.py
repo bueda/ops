@@ -1,7 +1,7 @@
 from fabric.api import warn, cd, require, local, env, settings, abort
 import os
 
-from buedafab.operations import run, sed
+from buedafab.operations import run, sed, put
 from buedafab import celery, db, commands, notify, testing, utils, testing
 from buedafab import deploy
 
@@ -20,6 +20,9 @@ def _git_deploy(release, skip_tests):
     require('pretty_release')
     require('path')
     require('hosts')
+
+    put(os.path.join(os.path.abspath(os.path.dirname(__file__)),
+            '..', 'files', 'ssh_config'), '~/.ssh/config')
 
     deployed = False
     hard_reset = False

@@ -2,14 +2,11 @@ from fabric.api import require, env
 import os
 
 from buedafab import aws
-from buedafab.operations import put
 
 def _not_localhost():
     if (hasattr(env, 'pip_requirements')
             and hasattr(env, 'pip_requirements_production')):
         env.pip_requirements += env.pip_requirements_production
-    put(os.path.join(os.path.abspath(os.path.dirname(__file__)),
-            'files', 'ssh_config'), '~/.ssh/config')
 
 def development():
     """
