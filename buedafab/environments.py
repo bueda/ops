@@ -11,13 +11,14 @@ def _not_localhost():
     put(os.path.join(os.path.abspath(os.path.dirname(__file__)),
             'files', 'ssh_config'), '~/.ssh/config')
 
+if len(env.hosts) == 0:
+    env.hosts = ['dev.bueda.com:%(ssh_port)d' % env]
+
 def development():
     """
     [Env] Development server environment
     """
     _not_localhost()
-    if len(env.hosts) == 0:
-        env.hosts = ['dev.bueda.com:%(ssh_port)d' % env]
     env.allow_no_tag = True
     env.deployment_type = "DEV"
 
