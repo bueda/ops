@@ -28,7 +28,7 @@ def spawn(ami=None, region=None, chef_roles=None):
 
     role_string = ""
     if chef_roles:
-        env.chef_roles.extend(chef_roles.split(','))
+        env.chef_roles.extend(chef_roles.split('-'))
     for role in env.chef_roles:
         role_string += "role[%s] " % role
 
