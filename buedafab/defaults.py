@@ -29,6 +29,7 @@ env.celeryd = None
 env.hoptoad_api_key = None
 env.campfire_token = None
 env.sha_url_template = None
+env.deployed_version = None
 
 # TODO open source the now deleted upload_to_s3 utils
 if 'AWS_ACCESS_KEY_ID' in os.environ and 'AWS_SECRET_ACCESS_KEY' in os.environ:
