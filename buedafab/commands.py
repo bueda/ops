@@ -49,11 +49,11 @@ def rollback():
 
 def restart_webserver(hard_reset=False):
     """
-    Restart the Django application webserver
+    Restart the Gunicorn application webserver
     """
-    if hard_reset:
-        sudo('apache2ctl graceful')
-    else:
-        require('path')
-        require('wsgi')
-        run('touch %s' % os.path.join(utils.absolute_release_path(), env.wsgi))
+    require('unit')
+    sudo('/etc/init.d/%(unit)s restart' % env)
+
+def rechef():
+    """ Run the latest Chef cookbooks on all servers. """
+    sudo('chef-client')

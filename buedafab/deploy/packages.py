@@ -12,12 +12,12 @@ def _read_private_requirements():
                 yield requirement.strip().split('==')
 
 def _install_private_package(package, scm=None, release=None):
-    scratch_path = os.path.join('/tmp', '%s-%s' % (package, env.time_now))
-    archive_path = '%s.tar' % scratch_path
+    env.scratch_path = os.path.join('/tmp', '%s-%s' % (package, env.time_now))
+    archive_path = '%s.tar.gz' % env.scratch_path
 
     if not scm:
         require('s3_key')
-        env.s3_key.key = '%s.tar' % package
+        env.s3_key.key = '%s.tar.gz' % package
         env.s3_key.get_contents_to_filename(archive_path)
     else:
         if 'release' not in env:
@@ -31,8 +31,7 @@ def _install_private_package(package, scm=None, release=None):
             original_archive = env.archive
         else:
             original_archive = None
-        with settings(unit=package, scm=scm, release=release,
-                scratch_path=scratch_path):
+        with settings(unit=package, scm=scm, release=release):
             if not os.path.exists(env.scratch_path):
                 local('git clone %(scm)s %(scratch_path)s' % env)
             deploy.utils.make_archive()

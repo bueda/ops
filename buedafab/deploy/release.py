@@ -10,7 +10,7 @@ from buedafab import utils
 def bootstrap_release_folders():
     require('path')
     require('deploy_group')
-    conditional_mkdir(env.path, env.deploy_group, 'g+w', use_sudo=True)
+    conditional_mkdir(os.path.join(env.path, env.releases_root), env.deploy_group, 'g+w', use_sudo=True)
     with cd(os.path.join(env.path, env.releases_root)):
         first_exists = exists(env.release_paths[0])
         if not first_exists:

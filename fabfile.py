@@ -44,7 +44,3 @@ def spawn(ami=None, region=None, chef_roles=None):
 
     print "Run this command to spawn the server:\n"
     print command
-
-def rechef():
-    """ Run the latest Chef cookbooks on all servers. """
-    sudo('chef-client')
