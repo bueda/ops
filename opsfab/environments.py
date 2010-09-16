@@ -27,8 +27,8 @@ def lace():
 
 def web():
     production()
-    env.chef_roles = ["company", "five"]
-    env.security_groups.extend(["web", "five"])
+    env.chef_roles = ["app_server"]
+    env.security_groups.extend(["web"])
 
 def api():
     production()
