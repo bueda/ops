@@ -42,7 +42,7 @@ def rollback():
     with cd(os.path.join(env.path, env.releases_root)):
         previous_link = deploy.release.alternative_release_path()
         conditional_rm(env.current_release_symlink)
-        run('ln -s %s %s' % (previous_link, env.current_release_symlink))
+        run('ln -fs %s %s' % (previous_link, env.current_release_symlink))
     deploy.cron.conditional_install_crontab(utils.absolute_release_path(),
             env.crontab, env.deploy_user)
     restart_webserver()

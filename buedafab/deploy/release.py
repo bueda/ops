@@ -91,7 +91,7 @@ def conditional_symlink_current_release(deployed=False):
 def symlink_current_release(next_release_path):
     with cd(os.path.join(env.path, env.releases_root)):
         conditional_rm(env.current_release_symlink)
-        run('ln -s %s %s' % (next_release_path, env.current_release_symlink))
+        run('ln -fs %s %s' % (next_release_path, env.current_release_symlink))
 
 def alternative_release_path():
     if exists(utils.absolute_release_path()):
