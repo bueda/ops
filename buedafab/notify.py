@@ -25,8 +25,8 @@ def campfire_notify(deployed=False):
     require('deployment_type')
     require('release')
 
-    if (deployed and env.deployed_version and env.hoptoad_api_key
-            and env.campfire_token and env.campfire_room):
+    if (deployed and env.campfire_subdomain and env.campfire_token
+            and env.campfire_room):
         from pinder import Campfire
         deploying = local('git rev-parse --short %(release)s' % env)
         branch = local("git symbolic-ref %(release)s 2>/dev/null "

@@ -52,7 +52,8 @@ def restart_webserver(hard_reset=False):
     Restart the Gunicorn application webserver
     """
     require('unit')
-    sudo('/etc/init.d/%(unit)s restart' % env)
+    with settings(warn_only=True):
+        sudo('/etc/init.d/%(unit)s restart' % env)
 
 def rechef():
     """ Run the latest Chef cookbooks on all servers. """
