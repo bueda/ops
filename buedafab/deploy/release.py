@@ -96,7 +96,7 @@ def symlink_current_release(next_release_path):
 def alternative_release_path():
     if exists(utils.absolute_release_path()):
         current_release_path = run('readlink %s' % utils.absolute_release_path())
-        if current_release_path == env.release_paths[0]:
+        if os.path.basename(current_release_path) == env.release_paths[0]:
             alternative = env.release_paths[1]
         else:
             alternative = env.release_paths[0]
