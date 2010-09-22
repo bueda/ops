@@ -46,9 +46,13 @@ def campfire_notify(deployed=False):
         campfire = Campfire(env.campfire_subdomain, env.campfire_token)
         room = campfire.find_room_by_name(env.campfire_room)
         room.join()
-        message = ('%(deployer)s is deploying %(branch)s '
-            '(%(deployed)s..%(deploying)s) to %(target)s %(compare_url)s'
-            % locals())
+        if deployed:
+            message = ('%(deployer)s is deploying %(branch)s '
+                '(%(deployed)s..%(deploying)s) to %(target)s %(compare_url)s'
+                % locals())
+        else:
+            message = ('%(deployer)s is deploying %(branch)s to %(target)s'
+                % locals())
         room.speak(message)
         room.leave()
         print 'Campfire notified that %s' % message

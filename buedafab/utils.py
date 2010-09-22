@@ -32,7 +32,7 @@ def store_deployed_version():
     if env.sha_url_template:
         env.deployed_version = local('curl -s %s' % sha_url()).strip('"')
         if len(env.deployment_type) > 10:
-            env.deployed_version = ""
+            env.deployed_version = None
 
 def sha_url():
     require('sha_url_template')
