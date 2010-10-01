@@ -51,18 +51,22 @@ def _git_deploy(release, skip_tests):
     local('git checkout %s' % starting_branch)
     return deployed, hard_reset
 
-def webpy_deploy(release=None, skip_tests=None):
+def deploy(release=None, skip_tests=None):
     require('hosts')
     require('path')
     require('unit')
 
     env.test_runner = testing.webpy_test_runner
 
+    utils.store_deployed_version()
     deployed, hard_reset = _git_deploy(release, skip_tests)
     deploy.release.conditional_symlink_current_release(deployed)
     commands.restart_webserver(hard_reset)
     notify.hoptoad_deploy(deployed)
     notify.campfire_notify(deployed)
+
+webpy_deploy = deploy
+tornado_deploy = deploy
 
 def django_deploy(release=None, skip_tests=None):
     require('hosts')
