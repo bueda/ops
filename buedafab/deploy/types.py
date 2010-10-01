@@ -62,6 +62,7 @@ def webpy_deploy(release=None, skip_tests=None):
     deploy.release.conditional_symlink_current_release(deployed)
     commands.restart_webserver(hard_reset)
     notify.hoptoad_deploy(deployed)
+    notify.campfire_notify(deployed)
 
 def django_deploy(release=None, skip_tests=None):
     require('hosts')
