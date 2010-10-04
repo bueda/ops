@@ -7,9 +7,8 @@ def make_archive():
     require('scratch_path')
     with cd(env.scratch_path):
         deploy.release.make_pretty_release()
-        if env.release != env.head_commit:
-            local('git checkout %(release)s' % env)
-            local('git submodule init')
-            local('git submodule update')
+        local('git checkout %(release)s' % env)
+        local('git submodule init')
+        local('git submodule update')
         local('git archive --prefix=%(unit)s/ --format tar '
                 '%(release)s | gzip > %(scratch_path)s/%(archive)s' % env)
