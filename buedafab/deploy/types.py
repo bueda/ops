@@ -51,7 +51,7 @@ def _git_deploy(release, skip_tests):
     local('git checkout %s' % starting_branch)
     return deployed, hard_reset
 
-def deploy(release=None, skip_tests=None):
+def default_deploy(release=None, skip_tests=None):
     require('hosts')
     require('path')
     require('unit')
@@ -66,8 +66,8 @@ def deploy(release=None, skip_tests=None):
         notify.hoptoad_deploy(deployed)
         notify.campfire_notify(deployed)
 
-webpy_deploy = deploy
-tornado_deploy = deploy
+webpy_deploy = default_deploy
+tornado_deploy = default_deploy
 
 def django_deploy(release=None, skip_tests=None):
     require('hosts')
