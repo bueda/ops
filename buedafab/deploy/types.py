@@ -62,8 +62,9 @@ def deploy(release=None, skip_tests=None):
     deployed, hard_reset = _git_deploy(release, skip_tests)
     deploy.release.conditional_symlink_current_release(deployed)
     commands.restart_webserver(hard_reset)
-    notify.hoptoad_deploy(deployed)
-    notify.campfire_notify(deployed)
+    with settings(warn_only=True):
+        notify.hoptoad_deploy(deployed)
+        notify.campfire_notify(deployed)
 
 webpy_deploy = deploy
 tornado_deploy = deploy
