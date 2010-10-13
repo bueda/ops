@@ -45,8 +45,7 @@ def _git_deploy(release, skip_tests):
         env.release_path = os.path.join(env.path, env.releases_root,
                 deployed_versions[env.pretty_release])
     with cd(env.release_path):
-        run('git submodule init')
-        run('git submodule update --recursive', forward_agent=True)
+        run('git submodule update --init --recursive', forward_agent=True)
     hard_reset = deploy.packages.install_requirements(deployed)
     local('git checkout %s' % starting_branch)
     return deployed, hard_reset

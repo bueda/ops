@@ -8,7 +8,6 @@ def make_archive():
     with cd(env.scratch_path):
         deploy.release.make_pretty_release()
         local('git checkout %(release)s' % env)
-        local('git submodule init')
-        local('git submodule update')
+        local('git submodule update --init')
         local('git archive --prefix=%(unit)s/ --format tar '
                 '%(release)s | gzip > %(scratch_path)s/%(archive)s' % env)

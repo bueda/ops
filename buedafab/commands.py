@@ -6,8 +6,7 @@ from buedafab import environments, deploy, utils
 
 def setup():
     environments.localhost()
-    local('git submodule init')
-    local('git submodule update --recursive')
+    local('git submodule update --init --recursive')
     with settings(virtualenv=None):
         for package in deploy.packages._read_private_requirements():
             deploy.packages._install_private_package(*package)
