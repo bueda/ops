@@ -43,7 +43,7 @@ def campfire_notify(deployed=False):
         compare_url = ('%(source_repo_url)s/compare/%(deployed)s'
                 '...%(deploying)s' % locals())
 
-        campfire = Campfire(env.campfire_subdomain, env.campfire_token)
+        campfire = Campfire(env.campfire_subdomain, env.campfire_token, ssl=True)
         room = campfire.find_room_by_name(env.campfire_room)
         room.join()
         if deployed:
