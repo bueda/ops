@@ -2,7 +2,7 @@ from fabric.api import warn, cd, require, local, env, settings, abort
 import os
 
 from buedafab.operations import run, sed, put
-from buedafab import celery, db, commands, notify, testing, utils, testing
+from buedafab import celery, db, tasks, notify, testing, utils, testing
 from buedafab import deploy
 
 def _git_deploy(release, skip_tests):
@@ -60,7 +60,7 @@ def default_deploy(release=None, skip_tests=None):
     utils.store_deployed_version()
     deployed, hard_reset = _git_deploy(release, skip_tests)
     deploy.release.conditional_symlink_current_release(deployed)
-    commands.restart_webserver(hard_reset)
+    tasks.restart_webserver(hard_reset)
     with settings(warn_only=True):
         notify.hoptoad_deploy(deployed)
         notify.campfire_notify(deployed)
@@ -84,6 +84,6 @@ def django_deploy(release=None, skip_tests=None):
     db.load_data()
     deploy.release.conditional_symlink_current_release(deployed)
     celery.update_and_restart_celery()
-    commands.restart_webserver(hard_reset)
+    tasks.restart_webserver(hard_reset)
     notify.hoptoad_deploy(deployed)
     notify.campfire_notify(deployed)

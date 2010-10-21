@@ -4,7 +4,7 @@ Included for legacy support of fabfiles depending on a one-file fab_shared.
 import buedafab
 from buedafab.aws import *
 from buedafab.celery import *
-from buedafab.commands import *
+from buedafab.tasks import *
 from buedafab.db import *
 from buedafab.environments import *
 from buedafab.notify import *
