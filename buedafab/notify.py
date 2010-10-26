@@ -31,6 +31,9 @@ def campfire_notify(deployed=False):
         deploying = local('git rev-parse --short %(release)s' % env)
         branch = local("git symbolic-ref %(release)s 2>/dev/null "
                 "| awk -F/ {'print $NF'}" % env)
+        if not branch:
+            branch = local("git symbolic-ref HEAD 2>/dev/null "
+                    "| awk -F/ {'print $NF'}" % env)
 
         if env.tagged:
             require('release')
@@ -43,7 +46,8 @@ def campfire_notify(deployed=False):
         compare_url = ('%(source_repo_url)s/compare/%(deployed)s'
                 '...%(deploying)s' % locals())
 
-        campfire = Campfire(env.campfire_subdomain, env.campfire_token, ssl=True)
+        campfire = Campfire(env.campfire_subdomain, env.campfire_token,
+                ssl=True)
         room = campfire.find_room_by_name(env.campfire_room)
         room.join()
         if deployed:
