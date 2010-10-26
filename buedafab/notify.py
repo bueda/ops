@@ -58,6 +58,5 @@ def campfire_notify(deployed=False):
             message = ('%(deployer)s is deploying %(branch)s to %(target)s'
                 % locals())
         room.speak(message)
-        room.leave()
         print 'Campfire notified that %s' % message
 
