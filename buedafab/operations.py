@@ -65,11 +65,20 @@ def sshagent_run(command):
     real_command = cwd + command
 
     with settings(cwd=''):
-        try:
-            # catch the port number to pass to ssh
-            host, port = env.host.split(':')
+        if env.port:
+            port = env.port
+            host = env.host
+        else:
+            try:
+                # catch the port number to pass to ssh
+                host, port = env.host.split(':')
+            except ValueError:
+                port = None
+                host = env.host
+
+        if port:
             local('ssh -p %s -A %s "%s"' % (port, host, real_command))
-        except ValueError:
+        else:
             local('ssh -A %s "%s"' % (env.host, real_command))
 
 def sudo(command, shell=True, user=None, pty=False):
