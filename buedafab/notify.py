@@ -31,7 +31,7 @@ def campfire_notify(deployed=False):
             and env.campfire_room):
         from pinder import Campfire
         deploying = local('git rev-parse --short %(release)s' % env)
-        branch = utils.branch(release)
+        branch = utils.branch(env.release)
 
         if env.tagged:
             require('release')
