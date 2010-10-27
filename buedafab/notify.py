@@ -2,6 +2,8 @@ from fabric.api import env, require, cd, local
 from fabric.decorators import runs_once
 import os
 
+from buedafab import utils
+
 @runs_once
 def hoptoad_deploy(deployed=False):
     require('hoptoad_api_key')
@@ -29,11 +31,7 @@ def campfire_notify(deployed=False):
             and env.campfire_room):
         from pinder import Campfire
         deploying = local('git rev-parse --short %(release)s' % env)
-        branch = local("git symbolic-ref %(release)s 2>/dev/null "
-                "| awk -F/ {'print $NF'}" % env)
-        if not branch:
-            branch = local("git symbolic-ref HEAD 2>/dev/null "
-                    "| awk -F/ {'print $NF'}" % env)
+        branch = utils.branch(release)
 
         if env.tagged:
             require('release')

@@ -46,3 +46,8 @@ def absolute_release_path():
     require('path')
     require('current_release_path')
     return os.path.join(env.path, env.current_release_path)
+
+def branch(ref=None):
+    ref = ref or "HEAD"
+    return local("git symbolic-ref %s 2>/dev/null | awk -F/ {'print $NF'}"
+            % ref)

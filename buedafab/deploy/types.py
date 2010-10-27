@@ -6,8 +6,7 @@ from buedafab import celery, db, tasks, notify, testing, utils, testing
 from buedafab import deploy
 
 def _git_deploy(release, skip_tests):
-    starting_branch = local("git symbolic-ref HEAD 2>/dev/null "
-            "| awk -F/ {'print $NF'}")
+    starting_branch = utils.branch()
     # Ideally, tests would run on the version you are deploying exactly.
     # There is no easy way to require that without allowing users to go
     # through the entire tagging process before failing tests.
