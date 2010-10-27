@@ -34,6 +34,10 @@ def webpy_test_runner(deployment_type=None):
     pass
 
 @runs_once
+def tornado_test_runner(deployment_type=None):
+    return local('test/run_tests.py', capture=False).return_code
+
+@runs_once
 def django_test_runner(deployment_type=None):
     command = './manage.py test'
     if deployment_type:
