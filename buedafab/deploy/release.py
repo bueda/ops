@@ -1,4 +1,4 @@
-from fabric.api import cd, require, local, env, prompt, settings
+from fabric.api import cd, require, local, env, prompt, settings, abort
 from fabric.contrib.console import confirm
 from fabric.decorators import runs_once
 import os
@@ -41,6 +41,10 @@ def make_release(release=None):
     env.tagged = False
     if not env.release or env.release == 'latest_tag':
         if not env.allow_no_tag:
+            branch = utils.branch()
+            if branch != "master":
+                abort("Make sure to checkout the master branch and merge in the"
+                        " development branch before deploying to production.")
             local('git checkout master')
         description = local('git describe master' % env).rstrip('\n')
         if '-' in description:
