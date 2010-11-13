@@ -23,7 +23,7 @@ directories & methodology laid out in buedafab's README.
         staging
         test
 
-    bc. $ fab <development/production/localhost> deploy[:release=<tag>]
+    $ fab <development/production/localhost> deploy[:release=<tag>]
 
 A Fabric run must have one of `production`, `development` or `localhost` as the
 first parameter to specify which environment you would like the following
@@ -34,20 +34,20 @@ updates dev.bueda.com.
 Tag a specific commit of djangoapp as a new release, then deploy to all
 production machines:
 
-    bc. ~/web$ fab production deploy:commit=6b4943c
+    ~/web$ fab production deploy:commit=6b4943c
 
 Deploy HEAD to the development machine without making a tagged release:
 
-    bc. ~/web$ fab development deploy
+    ~/web$ fab development deploy
 
 Deploy a specific commit to the development machine without making a tagged
 release:
 
-    bc. ~/web$ fab development deploy:commit=6b4943c
+    ~/web$ fab development deploy:commit=6b4943c
 
 Deploy a tag that already exists to all production machines:
 
-    bc. ~/web$ fab production deploy:release=v0.1.1
+    ~/web$ fab production deploy:release=v0.1.1
 
 ## Server Provisioning
 
