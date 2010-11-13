@@ -89,14 +89,27 @@ deployed code. Here's what we've come up with.
 
 ### Version Control
 
-All projects are maintained with `git` in a remote repository that you have
+All projects are version with `git` in a remote repository that you have
 access to. It need not be GitHub, and you need not have a special deploy key on
 the remote server. You will need ssh-agent installed and running if you are
 using git submodules in your app.
 
 #### Motive
 
-TODO
+Developers should only be able to deploy from a remote repository to make sure
+that deployed code (no matter if it's to a staging, development or production
+environment) is always available to other developers. If a developer deploys
+from a local repository and forgets to push their commits to a shared
+repository, it wreak havok if that developer becomes unavailable. 
+
+Additionally, deployment should always be a push operation, not pull. A
+developer or operations person should always be at the helm of a deployment, no
+matter how automated. This person should ideally be able to triage and resolve a
+bad deploy manually if the need arises.
+
+Finally, servers shouldn't require any special authentication to deploy. Since
+we've always got a live person leading the deploy, they can use their own
+personal SSH authentication keys to clone or update a remote repository.
 
 ### Servers
 
@@ -130,7 +143,22 @@ like this:
 
 #### Motive
 
-TODO
+Beyond developing and testing locally, developers should have an easy way to get
+their code onto a remote server somewhat similar to the production environment.
+This is our `development` environment - it is backed by a completely separate
+database with no live user data, on a separate physical server (well, as separate as a
+virtual machine can get). Any developer can deploy here anytime to make
+collaborating with a distributed team as easy as possible. The `development`
+environment is usually running the HEAD of the `development` branch from git.
+
+The `staging` environment is one big step closer to production. This environment
+is usually running the HEAD of the `master` branch. This environment is on a
+separate physical server from production, but uses the production database.
+
+Finall,y, the `production` environment exists on its own server (or servers) and
+only ever runs a tagged commit from the `master` branch in git. This way anyone
+can tell which version is in production by looking in their git repository for
+the last tagged commit.
 
 ### Directories
 
@@ -149,7 +177,42 @@ Whever `current` points, that's what's running in production.
 
 #### Motive
 
-TODO 
+There are four prevailing ways of organizing deploy directories:
+
+##### Separate deploy directories by timestamp
+
+Every time you deploy, a new directory is created on the remote server with the
+current timestamp. Repository is either re-cloned from the remote or
+pushed/archived and uploaded locally from the deploying machine. A `current`
+symlink points to the deployed release. To rollback, find the timestamp before
+`current`.
+
+##### Separate deploy directories by commit SHA or tag
+
+Each commit SHA or tag (or output from `git describe`) gets a separate folder.
+Repostiroy is either re-clone from the remote or archived and uploaded locally
+from the deploying machine. A `current` symlink points to the deployed release,
+and `previous` to the last (for rollback purposes).
+
+##### Single deploy directory, version selected with git
+
+Use one deploy target folder per application, and rely on git to update and
+checkout the version you wish to deploy. No need for symlinks - the one folder
+is always the deployed version. No specific way to 'rollback' since there is no
+record of the 'previous' version except the git log.
+
+GitHub [uses this approach](https://github.com/blog/470-deployment-script-spring-cleaning).
+
+##### Two deploy directories, version selected with git
+
+This method is similar to the single deploy directory approach in that it uses
+git to update to the latest verion, but it keeps two directories - an `a` and a
+`b` (the names are arbitrary) and uses symlinks to bounce back and forth between
+them on alternate deploys. This method doesn't require the use of `git reset
+--hard` and gives you a bit of a buffer between the currently deployed version
+and the one that's about to go live. Especially considering that this gets you
+separate virtualenvs (and a buffer against funky egg installs or PyPi outages)
+it is the method we have settled on and what buedafab uses.
 
 ### Virtualenv
 
@@ -162,7 +225,20 @@ in a project - see `buedafab/deploy/packages.py` for more details.
 
 #### Motive
 
-TODO 
+At one point in time, we wiped and rebuilt a virtualenv for the application
+from scratch each deploy. This is clearly the safest solution, as it will always
+get the correct versions of each package. The time spent, however, was not worth
+the added saftey to us. Our applications have dependencies that typically take
+5-10 minutes to install - by sharing the virtualenv from the previous deploy and
+using the `--update` flag to bump package versions as neccessary, we save a lot
+of time.
+
+The only tricky point at the moment is if your pip requirements files have paths
+to SCM repositories. Perhaps due to our own error, but we have found pip to be
+unreliable when it comes to checking out specific tags or commit IDs from SCM.
+It can often get in a bad state (e.g. a detached HEAD in a git repo that pip
+can't seem to handle) that requires the `src/` directory inside the virtualenv
+to be wiped.
 
 ## Example
 
