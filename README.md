@@ -82,6 +82,81 @@ optionally be overridden by re-defining them just like any other key at the top
 of your `fabfile.py`. The defaults should be sufficient if you're following our
 deploy directories & methodology as defined in the next section.
 
+Here are the commands we use most often:
+
+### fab test
+
+Run the test suite for this project. There are current test runners defined for
+Django, Tornado, and general nosetests suites. Just set `env.test_runner` to the
+appropriate method (or write your own).
+
+### fab lint
+
+Run pylint on the project, including the packages in `apps/`, `lib/` and
+`vendor/`, and using the `.pylintrc` file in the project's root.
+
+### fab <development/staging/production> ... 
+
+Some of the commands require an app environment - `buedafab` defines four
+different environments: localhost, development, staging and production. These
+are defined in `buedafab/environments.py` and can be overridden or extended.
+
+These commands don't do anything on their own, but are meant to prefix other
+commands, such as...
+
+### fab <env> deploy
+
+Deploy this app to the environment <env> using the git-backed deploy strategy
+defined at the end of this README. Some example use cases:
+
+Tag a specific commit of djangoapp as a new release, then deploy to all
+production machines:
+
+    ~/web$ fab production deploy:commit=6b4943c
+
+Deploy HEAD to the development machine without making a tagged release:
+
+    ~/web$ fab development deploy
+
+Deploy a specific commit to the development machine without making a tagged
+release:
+
+    ~/web$ fab development deploy:commit=6b4943c
+
+Deploy a tag that already exists to all production machines:
+
+    ~/web$ fab production deploy:release=v0.1.1
+
+### fab setup
+
+A shortcut to bootstrap or update a virtualenv with the dependencies for this
+project. Installs the `common.txt` and `dev.txt` pip requirements and
+initializes/updates any git submodules.
+
+It also supports the concept of "private packages" - i.e. Python packages that
+are not available on PyPi but require some local compilation and thus don't work
+well as git submodules. It can either download a tar file of the package from
+S3 or clone a git repository, build and install the package.
+
+### fab restart_webserver
+
+Assuming your remote server has a service script for this application's
+process at `/etc/init.d/%(unit)s`, this command simple bounces the web server.
+
+### fab rollback
+
+Roll back the deployed version to the previously deployed version - i.e. swap
+the `current` symlink from the `a` to the `b` directory (see below for the
+methodology this uses).
+
+### fab <enable/disable> maintenancemode
+
+If your Django project uses the
+[maintenancemode app](https://github.com/jezdez/django-maintenancemode), 
+this command will toggle that on and off. It finds the `MAINTENANCE_MODE`
+variable in your `settings.py` on the remote server, toggles its value and
+restarts the web server.
+
 ## Deploy Directories & Methodology
 
 After a few iterations, Bueda settled on a certain method for organizing
@@ -245,3 +320,9 @@ to be wiped.
 The `fabfile-example.py` file in this repository has an example `fabfile.py` for
 a project that uses a wide range of the methods from buedfab, and sets a few
 extra `env` keys.
+
+## TODO
+
+* Document crontab support, and add the scripts directory to the boilerplate
+    repository. We stopped using this in favor of celery scheduled tasks, but
+    someone else may still want it (and the code works fine).
