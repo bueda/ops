@@ -1,3 +1,4 @@
+"""Lower-level utilities, including some git helpers."""
 from fabric.api import env, local, require
 import os
 
@@ -48,6 +49,7 @@ def absolute_release_path():
     return os.path.join(env.path, env.current_release_path)
 
 def branch(ref=None):
+    """Return the name of the current git branch."""
     ref = ref or "HEAD"
     return local("git symbolic-ref %s 2>/dev/null | awk -F/ {'print $NF'}"
             % ref)

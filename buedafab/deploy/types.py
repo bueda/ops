@@ -1,3 +1,4 @@
+"""Deploy commands for applications following Bueda's boilerplate layouts."""
 from fabric.api import warn, cd, require, local, env, settings, abort
 import os
 
@@ -50,6 +51,7 @@ def _git_deploy(release, skip_tests):
     return deployed, hard_reset
 
 def default_deploy(release=None, skip_tests=None):
+    """Deploy a project according to the methodology defined in the README."""
     require('hosts')
     require('path')
     require('unit')
@@ -68,6 +70,13 @@ webpy_deploy = default_deploy
 tornado_deploy = default_deploy
 
 def django_deploy(release=None, skip_tests=None):
+    """Deploy a Django project according to the methodology defined in the
+    README.
+
+    Beyond the default_deploy(), this also updates and migrates the database,
+    loads extra database fixtures, installs an optional crontab as well as
+    celeryd.
+    """
     require('hosts')
     require('path')
     require('unit')

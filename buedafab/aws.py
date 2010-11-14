@@ -1,7 +1,24 @@
+"""Methods for interacting with Amazon's cloud servers. Uses the boto library to
+connect to their API.
+"""
 from fabric.api import require, env
 from fabric.decorators import runs_once
 
 def collect_load_balanced_instances():
+    """Return the fully-qualified domain names of the servers attached to an
+    Elastic Load Balancer.
+
+    Requires the env keys:
+        
+        load_balancer -- the ID of the load balancer, typically a chosen name
+        ec2_connection -- an instance of boto.ec2.EC2Connection (set by default
+                            if your shell environment has an AWS_ACCESS_KEY_ID
+                            and AWS_SECRET_ACCESS_KEY defined
+        elb_connection -- an instance of boto.ec2.elb.ELBConnection (again, set
+                            by default if you have the right shell variables)
+        env.ssh_port -- the SSH port used by the servers (has a default)
+    """
+
     require('load_balancer')
     require('ec2_connection')
     require('elb_connection')
@@ -25,6 +42,15 @@ def collect_load_balanced_instances():
 
 @runs_once
 def elb_add(instance=None):
+    """Attach the instance defined by the provided instance ID (e.g. i-34927a9)
+    to the application's Elastic Load Balancer.
+
+    Requires the env keys:
+
+        load_balancer -- the ID of the load balancer, typically a chosen name
+        elb_connection -- an instance of boto.ec2.elb.ELBConnection (set
+                            by default if you have the AWS shell variables)
+    """
     require('load_balancer')
     require('elb_connection')
     status = env.elb_connection.register_instances(
@@ -34,6 +60,15 @@ def elb_add(instance=None):
 
 @runs_once
 def elb_remove(instance=None):
+    """Detach the instance defined by the provided instance ID (e.g. i-34927a9)
+    to the application's Elastic Load Balancer.
+
+    Requires the env keys:
+
+        load_balancer -- the ID of the load balancer, typically a chosen name
+        elb_connection -- an instance of boto.ec2.elb.ELBConnection (set
+                            by default if you have the AWS shell variables)
+    """
     require('load_balancer')
     require('elb_connection')
     status = env.elb_connection.deregister_instances(

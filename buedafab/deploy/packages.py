@@ -1,3 +1,4 @@
+"""Utilities to install Python package dependencies."""
 from fabric.api import warn, cd, require, local, env, settings
 from fabric.contrib.console import confirm
 import os
@@ -68,7 +69,14 @@ def _install_pip_requirements(path=None):
                     env.virtualenv, requirements_file))
 
 def install_requirements(deployed=False):
-    require('path')
+    """Install the pip packages listed in the project's requirements files.
+
+    Requires the env keys:
+
+        release_path -- remote path of the deployed app
+        virtualenv -- path to this app's virtualenv (required to grab the
+                        correct Python executable)
+    """
     require('release_path')
     require('virtualenv')
 

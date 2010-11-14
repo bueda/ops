@@ -1,3 +1,6 @@
+"""Lower-level Fabric extensions for common tasks. None of these are ready-to-go
+Fabric commands.
+"""
 from fabric.api import (run as fabric_run, local, sudo as fabric_sudo, hide,
         put as fabric_put, settings, env, require)
 from fabric.contrib.files import (exists as fabric_exists, sed as fabric_sed)

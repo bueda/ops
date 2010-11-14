@@ -1,3 +1,7 @@
+"""Set sane default values for many of the keys required by buedafab's commands
+and utilities. Any of these can be overridden by setting a custom value in a
+project's fabfile that uses buedafab.
+"""
 from fabric.api import env, warn
 import datetime
 import os
@@ -6,22 +10,37 @@ env.time_now = datetime.datetime.now().strftime("%H%M%S-%d%m%Y")
 env.version_pattern = r'^v\d+(\.\d+)+?$'
 env.pip_install_command = 'pip install -i http://d.pypi.python.org/simple'
 
+# Within the target directory on the remote server, subdirectory for the a/b
+# releases directory.
 env.releases_root = 'releases'
+
+# Name of the symlink to the current release
 env.current_release_symlink = 'current'
-env.current_release_path = os.path.join(env.releases_root, env.current_release_symlink)
+env.current_release_path = os.path.join(env.releases_root,
+        env.current_release_symlink)
+
+# Names of the directories to alternate between in the releases directory
 env.release_paths = ('a', 'b',)
+
+# Name of the virtualenv to create within each release directory
 env.virtualenv = 'env'
+
+# Default SSH port for all servers
 env.ssh_port = 1222
+
+# Default commit ID to deploy if none is specificed, e.g. fab development deploy
 env.default_revision = 'HEAD'
+
+# User and group that owns the deployed files - you probably want to change this
 env.deploy_user = 'deploy'
 env.deploy_group = 'bueda'
+
 env.master_remote = 'origin'
 env.settings = "settings.py"
-env.scm_url_template = None
-
-# Defaults to avoid using hasattr on env
-env.private_requirements = []
 env.extra_fixtures = ["permissions"]
+
+# To avoid using hasattr(env, 'the_attr') everywhere, set some blank defaults
+env.private_requirements = []
 env.crontab = None
 env.updated_db = False
 env.migrated = False
@@ -30,6 +49,7 @@ env.hoptoad_api_key = None
 env.campfire_token = None
 env.sha_url_template = None
 env.deployed_version = None
+env.scm_url_template = None
 
 # TODO open source the now deleted upload_to_s3 utils
 if 'AWS_ACCESS_KEY_ID' in os.environ and 'AWS_SECRET_ACCESS_KEY' in os.environ:
