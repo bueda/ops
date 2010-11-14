@@ -8,7 +8,7 @@ buedafab is a collection of methods for deploying Python apps using Fabric.
 At Bueda, we need to deploy Django, web.py and Tornado applications to our
 servers on the Amazon EC2 cloud servers. A frequent point of contention in the
 Python web application community seems to be a lack of a "default" pattern for
-dpeloying applications to production servers. Our approach may not work for you,
+deploying applications to production servers. Our approach may not work for you,
 but we would love to compare methods and see if both can't be improved.
 
 ## Installation
@@ -341,3 +341,18 @@ extra `env` keys.
 * Document crontab support, and add the scripts directory to the boilerplate
     repository. We stopped using this in favor of celery scheduled tasks, but
     someone else may still want it (and the code works fine).
+
+## Contributing
+
+If you have improvements or bug fixes:
+
+* Fork the repository on GitHub
+* File an issue for the bug fix/feature request in GitHub
+* Create a topic branch
+* Push your modifications to that branch
+* Send a pull request
+
+## Authors
+
+* [Bueda Inc.](http://www.bueda.com)
+* Christopher Peplin, peplin@bueda.com, @[peplin](http://twitter.com/peplin)
