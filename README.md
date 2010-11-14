@@ -11,6 +11,13 @@ Python web application community seems to be a lack of a "default" pattern for
 deploying applications to production servers. Our approach may not work for you,
 but we would love to compare methods and see if both can't be improved.
 
+### Related Projects
+
+[django-boilerplate](https://github.com/bueda/django-boilerplate)
+[tornado-boilerplate](https://github.com/bueda/tornado-boilerplate)
+[python-webapp-etc](https://github.com/bueda/python-webapp-etc)
+[comrade](https://github.com/bueda/django-comrade)
+
 ## Installation
 
 ### Python Package Dependencies
@@ -26,8 +33,9 @@ You can install all of these with pip using the `pip-requirements.txt` file:
     $ pip install -r pip-requirements.txt
 
 The recommended method is to install buedafab's dependencies in each of your
-project's virtualenvs. An alternative is to install them system-wide, but
-depending the way Fabric is installed you may encounter import problems.
+project's [virtualenv](http://pypi.python.org/pypi/virtualenv)s. An alternative
+is to install them system-wide, but depending the way Fabric is installed you
+may encounter import problems.
 
 buedafab must be in your PYTHONPATH to use its methods - a typical installation
 method is to clone a copy of the repository somewhere:
@@ -46,18 +54,19 @@ and secret access key to your shell environment:
     $ echo "export AWS_SECRET_ACCESS_KEY=<your secret key>" >> ~/.bashrc
 
 In any project that you will be using buedafab, activate that project's
-virtualenv (using virtualenvwrapper here) and install the ops repo's pip
-requirements:
+virtualenv (using
+[virtualenvwrapper](http://www.doughellmann.com/projects/virtualenvwrapper/)
+here) and install the ops repo's pip requirements:
 
     web/$ workon web
     (web)web/$ pip install -r ~/ops/pip-requirements.txt
 
 ## Usage
 
-To use any of the utilies, your project must have a `fabfile.py` and `buedafab`
-must be in your `PYTHONPATH`. Some of the utilities are ready-to-go Fabric
-commands - the only requirement is that you import them at the top of your
-`fabfile.py`.
+To use any of the utilities, your project must have a `fabfile.py` and
+`buedafab` must be in your `PYTHONPATH`. Some of the utilities are ready-to-go
+Fabric commands - the only requirement is that you import them at the top of
+your `fabfile.py`.
 
 The `rollback` method in `buedafab/tasks.py` is one of these complete tasks. The
 method will roll back an app deployment to the previous version. To use it
@@ -65,7 +74,7 @@ in your project, import it at the top of the `fabfile.py`:
 
     from buedafab.tasks import rollback
 
-and on the commandline, run it like any other Fabric task:
+and on the command line, run it like any other Fabric task:
 
     $ fab rollback
 
@@ -87,8 +96,9 @@ Here are the commands we use most often:
 ### fab test
 
 Run the test suite for this project. There are current test runners defined for
-Django, Tornado, and general nosetests suites. Just set `env.test_runner` to the
-appropriate method (or write your own).
+Django, Tornado, and general
+[nose](http://somethingaboutorange.com/mrl/projects/nose/0.11.2/) test suites.
+Just set `env.test_runner` to the appropriate method (or write your own).
 
 ### fab lint
 
@@ -174,7 +184,7 @@ Developers should only be able to deploy from a remote repository to make sure
 that deployed code (no matter if it's to a staging, development or production
 environment) is always available to other developers. If a developer deploys
 from a local repository and forgets to push their commits to a shared
-repository, it wreak havok if that developer becomes unavailable. 
+repository, it wreak havoc if that developer becomes unavailable. 
 
 Additionally, deployment should always be a push operation, not pull. A
 developer or operations person should always be at the helm of a deployment, no
@@ -249,7 +259,7 @@ some cases where you need to store logs or data files along side an app, and
 it's good to not mix those with the `releases`.
 
 There is additionally a `current` symlink that points to either `a` or `b`.
-Whever `current` points, that's what's running in production.
+Where `current` points, that's what's running in production.
 
 The final directory structure looks something like:
 
@@ -296,7 +306,7 @@ GitHub [uses this approach](https://github.com/blog/470-deployment-script-spring
 ##### Two deploy directories, version selected with git
 
 This method is similar to the single deploy directory approach in that it uses
-git to update to the latest verion, but it keeps two directories - an `a` and a
+git to update to the latest version, but it keeps two directories - an `a` and a
 `b` (the names are arbitrary) and uses symlinks to bounce back and forth between
 them on alternate deploys. This method doesn't require the use of `git reset
 --hard` and gives you a bit of a buffer between the currently deployed version
@@ -310,25 +320,25 @@ Both the `a` and `b` directories have separate virtualenvs as a subdirectory
 named `env`. The web server must be careful to either add this directory to the
 `PYTHONPATH` or use the Python executable at `env/bin/python`. 
 
-buedafab relies on pip's requirements file support to define package depencies
-in a project - see `buedafab/deploy/packages.py` for more details.
+buedafab relies on pip's requirements file support to define package
+dependencies in a project - see `buedafab/deploy/packages.py` for more details.
 
 #### Motive
 
 At one point in time, we wiped and rebuilt a virtualenv for the application
 from scratch each deploy. This is clearly the safest solution, as it will always
 get the correct versions of each package. The time spent, however, was not worth
-the added saftey to us. Our applications have dependencies that typically take
+the added safety to us. Our applications have dependencies that typically take
 5-10 minutes to install - by sharing the virtualenv from the previous deploy and
-using the `--update` flag to bump package versions as neccessary, we save a lot
+using the `--update` flag to bump package versions as necessary, we save a lot
 of time.
 
 The only tricky point at the moment is if your pip requirements files have paths
 to SCM repositories. Perhaps due to our own error, but we have found pip to be
 unreliable when it comes to checking out specific tags or commit IDs from SCM.
-It can often get in a bad state (e.g. a detached HEAD in a git repo that pip
-can't seem to handle) that requires the `src/` directory inside the virtualenv
-to be wiped.
+It can often get in a bad state (e.g. a detached HEAD in a git repository that
+pip can't seem to handle) that requires the `src/` directory inside the
+virtualenv to be wiped.
 
 ## Example
 
