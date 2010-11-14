@@ -230,7 +230,7 @@ The `staging` environment is one big step closer to production. This environment
 is usually running the HEAD of the `master` branch. This environment is on a
 separate physical server from production, but uses the production database.
 
-Finall,y, the `production` environment exists on its own server (or servers) and
+Finally, the `production` environment exists on its own server (or servers) and
 only ever runs a tagged commit from the `master` branch in git. This way anyone
 can tell which version is in production by looking in their git repository for
 the last tagged commit.
@@ -244,11 +244,24 @@ deploy, the less I see the value in differentiating based on framework, so this
 guideline is the mmostly likely to change.
 
 Within the deploy directory - we will use `/var/django/five` for this example -
-there are two subdirectories, `a` and `b`. Each of these contains a clone of the
-project's git repository. 
+there is a `releases` subdirectory. This in turn contains two more
+subdirectories, `a` and `b`. Each of these contains a clone of the project's git
+repository. Why not put `a` and `b` at right at `/var/django/five`? There are
+some cases where you need to store logs or data files along side an app, and
+it's good to not mix those with the `releases`.
 
 There is additionally a `current` symlink that points to either `a` or `b`.
 Whever `current` points, that's what's running in production.
+
+The final directory structure looks something like:
+
+    /var/
+       django/
+            app/
+                releases/
+                    a/
+                    b/
+                    current -> a
 
 #### Motive
 
@@ -265,9 +278,13 @@ symlink points to the deployed release. To rollback, find the timestamp before
 ##### Separate deploy directories by commit SHA or tag
 
 Each commit SHA or tag (or output from `git describe`) gets a separate folder.
-Repostiroy is either re-clone from the remote or archived and uploaded locally
+Repository is either re-cloned from the remote or archived and uploaded locally
 from the deploying machine. A `current` symlink points to the deployed release,
 and `previous` to the last (for rollback purposes).
+
+In both this scenario and the timestamp strategy, if the deploys are archived
+and uploaded, it is a good idea to keep the original `app-VERSION.tar.gz` in a
+`packages/` directory alongside `releases`.
 
 ##### Single deploy directory, version selected with git
 
