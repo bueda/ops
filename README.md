@@ -75,7 +75,7 @@ see what keys it will be expecting and set them to the correct value at the top
 of your project's `fabfile.py`. For example, the `rollback` method expects the
 `path` key to point to the deploy target on the server. Define it like so:
 
-    env.path = "/var/django/myapp"
+    env.path = "/var/webapps/myapp"
 
 The default values for many keys are defined in `beudafab/defaults.py` and can
 optionally be overridden by re-defining them just like any other key at the top
@@ -109,8 +109,7 @@ commands, such as...
 Deploy this app to the environment <env> using the git-backed deploy strategy
 defined at the end of this README. Some example use cases:
 
-Tag a specific commit of djangoapp as a new release, then deploy to all
-production machines:
+Tag a specific commit as a new release, then deploy to all production machines:
 
     ~/web$ fab production deploy:commit=6b4943c
 
@@ -221,10 +220,11 @@ like this:
 Beyond developing and testing locally, developers should have an easy way to get
 their code onto a remote server somewhat similar to the production environment.
 This is our `development` environment - it is backed by a completely separate
-database with no live user data, on a separate physical server (well, as separate as a
-virtual machine can get). Any developer can deploy here anytime to make
-collaborating with a distributed team as easy as possible. The `development`
-environment is usually running the HEAD of the `development` branch from git.
+database with no live user data, on a separate physical server (well, as
+separate as a virtual machine can get). Any developer can deploy here anytime to
+make collaborating with a distributed team as easy as possible. The
+`development` environment is usually running the HEAD of the `development`
+branch from git.
 
 The `staging` environment is one big step closer to production. This environment
 is usually running the HEAD of the `master` branch. This environment is on a
@@ -238,15 +238,13 @@ the last tagged commit.
 ### Directories
 
 All apps are deployed to `/var` - the actual path is arbitrary, but we've
-settled on using `/var/<framework>/appname` so in the case of a Django
-application named `five` the path would be `/var/django/five`. The more apps we
-deploy, the less I see the value in differentiating based on framework, so this
-guideline is the mmostly likely to change.
+settled on using `/var/webapps/appname` so in the case of an application named
+`five` the path would be `/var/webapps/five`.
 
-Within the deploy directory - we will use `/var/django/five` for this example -
+Within the deploy directory - we will use `/var/webapps/five` for this example -
 there is a `releases` subdirectory. This in turn contains two more
 subdirectories, `a` and `b`. Each of these contains a clone of the project's git
-repository. Why not put `a` and `b` at right at `/var/django/five`? There are
+repository. Why not put `a` and `b` at right at `/var/webapps/five`? There are
 some cases where you need to store logs or data files along side an app, and
 it's good to not mix those with the `releases`.
 
@@ -256,7 +254,7 @@ Whever `current` points, that's what's running in production.
 The final directory structure looks something like:
 
     /var/
-       django/
+       webapps/
             app/
                 releases/
                     a/

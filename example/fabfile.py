@@ -14,7 +14,7 @@ from buedafab.tasks import (setup, restart_webserver, rollback, enable,
 env.unit = "five"
 
 # Deploy target on remote server
-env.path = "/var/django/%(unit)s" % env
+env.path = "/var/webapps/%(unit)s" % env
 
 # git-compatible path to remote repository
 env.scm = "git@github.com:bueda/%(unit)s.git" % env
