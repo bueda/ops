@@ -9,7 +9,7 @@ from fabric.api import env, require, runs_once
 import opsfab.defaults
 from opsfab.types import *
 from opsfab.environments import *
-from fab_shared import local, put, sudo
+from fab_shared import local, put, sudo, rechef
 
 @runs_once
 def spawn(ami=None, region=None, chef_roles=None):
