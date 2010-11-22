@@ -54,7 +54,7 @@ def webpy_test_runner(deployment_type=None):
 def tornado_test_runner(deployment_type=None):
     """Tornado test suite runner - depends on using Bueda's tornado-boilerplate
     app layout."""
-    return local('test/run_tests.py', capture=False).return_code
+    return local('tests/run_tests.py', capture=False).return_code
 
 @runs_once
 def django_test_runner(deployment_type=None):
