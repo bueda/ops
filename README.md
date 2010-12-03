@@ -52,6 +52,10 @@ You can install all of these with pip using the `pip-requirements.txt` file:
 
     $ pip install -r pip-requirements.txt
 
+If you already have Fabric, the same can be accomplished with:
+
+    $ fab setup
+
 The recommended method is to install buedafab's dependencies in each of your
 project's [virtualenv](http://pypi.python.org/pypi/virtualenv)s.
 
@@ -149,8 +153,8 @@ Deploy a tag that already exists to all production machines:
 ### fab setup
 
 A shortcut to bootstrap or update a virtualenv with the dependencies for this
-project. Installs the pip requirements in `common.txt` and `dev.txt` and
-initializes/updates any git submodules.
+project. Installs the pip requirements files listed in `env.pip_requirements`
+and `env.pip_requirements_dev` and initializes/updates any git submodules.
 
 It also supports the concept of "private packages" - i.e. Python packages that
 are not available on PyPi but require some local compilation and thus don't work
