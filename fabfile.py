@@ -9,7 +9,10 @@ from fabric.api import env, require, runs_once
 import opsfab.defaults
 from opsfab.types import *
 from opsfab.environments import *
-from fab_shared import local, put, sudo, rechef
+from fab_shared import local, put, sudo, rechef, setup
+
+env.root_dir = os.path.abspath(os.path.dirname(__file__))
+env.pip_requirements = ["pip-requirements.txt",]
 
 @runs_once
 def spawn(ami=None, region=None, chef_roles=None):

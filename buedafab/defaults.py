@@ -53,23 +53,28 @@ env.scm_url_template = None
 
 # TODO open source the now deleted upload_to_s3 utils
 if 'AWS_ACCESS_KEY_ID' in os.environ and 'AWS_SECRET_ACCESS_KEY' in os.environ:
-    import boto.ec2
-    import boto.ec2.elb
-    import boto.s3
-    import boto.s3.connection
-    import boto.s3.key
-    env.aws_access_key = os.environ['AWS_ACCESS_KEY_ID']
-    env.aws_secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
-    env.elb_connection = boto.ec2.elb.ELBConnection(
-            env.aws_access_key, env.aws_secret_key)
-    env.ec2_connection = boto.ec2.EC2Connection(
+    try:
+        import boto.ec2
+        import boto.ec2.elb
+        import boto.s3
+        import boto.s3.connection
+        import boto.s3.key
+    except ImportError:
+        warn('boto not installed -- required to use S3 or EC2. '
+                'Try running "fab setup"')
+    else:
+        env.aws_access_key = os.environ['AWS_ACCESS_KEY_ID']
+        env.aws_secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
+        env.elb_connection = boto.ec2.elb.ELBConnection(
                 env.aws_access_key, env.aws_secret_key)
-    _s3_connection = boto.s3.connection.S3Connection(env.aws_access_key,
-            env.aws_secret_key)
+        env.ec2_connection = boto.ec2.EC2Connection(
+                    env.aws_access_key, env.aws_secret_key)
+        _s3_connection = boto.s3.connection.S3Connection(env.aws_access_key,
+                env.aws_secret_key)
 
-    env.s3_bucket_name = 'bueda.deploy'
-    _bucket = _s3_connection.get_bucket(env.s3_bucket_name)
-    env.s3_key = boto.s3.connection.Key(_bucket)
+        env.s3_bucket_name = 'bueda.deploy'
+        _bucket = _s3_connection.get_bucket(env.s3_bucket_name)
+        env.s3_key = boto.s3.connection.Key(_bucket)
 else:
     warn('No S3 key set. To use S3 or EC2 for deployment, '
         'you will need to set one -- '
