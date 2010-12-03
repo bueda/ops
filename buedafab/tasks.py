@@ -22,6 +22,7 @@ def setup():
     with settings(virtualenv=None):
         for package in deploy.packages._read_private_requirements():
             deploy.packages._install_private_package(*package)
+    deploy.packages._install_manual_packages(env.root_dir)
     deploy.packages._install_pip_requirements(env.root_dir)
 
 def enable():

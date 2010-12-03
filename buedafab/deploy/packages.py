@@ -52,6 +52,18 @@ def _install_private_package(package, scm=None, release=None):
     else:
         run('%s -s %s' % (env.pip_install_command, archive_path))
 
+def _install_manual_packages(path=None):
+    require('virtualenv')
+    if not env.package_installation_scripts:
+        return
+
+    if not path:
+        require('release_path')
+        path = env.release_path
+    with cd(path):
+        for script in env.package_installation_scripts:
+            run('./%s %s' % (script, local("echo $VIRTUAL_ENV")
+                    or env.virtualenv))
 
 def _install_pip_requirements(path=None):
     require('virtualenv')
@@ -87,5 +99,6 @@ def install_requirements(deployed=False):
         _install_pip_requirements()
         for package in _read_private_requirements():
             _install_private_package(*package)
+        _install_manual_packages()
         return True
     return False
