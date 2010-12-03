@@ -41,6 +41,7 @@ env.extra_fixtures = ["permissions"]
 
 # To avoid using hasattr(env, 'the_attr') everywhere, set some blank defaults
 env.private_requirements = []
+env.package_installation_scripts = []
 env.crontab = None
 env.updated_db = False
 env.migrated = False
@@ -50,6 +51,8 @@ env.campfire_token = None
 env.sha_url_template = None
 env.deployed_version = None
 env.scm_url_template = None
+env.extra_deploy_tasks = []
+env.extra_setup_tasks = []
 
 # TODO open source the now deleted upload_to_s3 utils
 if 'AWS_ACCESS_KEY_ID' in os.environ and 'AWS_SECRET_ACCESS_KEY' in os.environ:
