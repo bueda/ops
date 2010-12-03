@@ -20,3 +20,18 @@ def make_archive():
         local('git submodule update --init')
         local('git archive --prefix=%(unit)s/ --format tar '
                 '%(release)s | gzip > %(scratch_path)s/%(archive)s' % env)
+
+def run_extra_deploy_tasks(deployed=False):
+    """Run arbitrary functions listed in env.package_installation_scripts.
+
+    Each function must accept a single parameter (or just kwargs) that will
+    indicates if the app was deployed or already existed.
+
+    """
+    require('release_path')
+    if not env.package_installation_scripts:
+        return
+
+    with cd(env.release_path):
+        for task in env.extra_deploy_tasks:
+            task(deployed)

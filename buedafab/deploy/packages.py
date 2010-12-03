@@ -81,7 +81,11 @@ def _install_pip_requirements(path=None):
                     env.virtualenv, requirements_file))
 
 def install_requirements(deployed=False):
-    """Install the pip packages listed in the project's requirements files.
+    """Install the pip packages listed in the project's requirements files,
+    private packages, as well as manual installation scripts.
+
+    Installation scripts defined by env.package_installation_scripts will be
+    provided the path to the virtualenv if one exists as the first argument.
 
     Requires the env keys:
 
