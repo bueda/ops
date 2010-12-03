@@ -10,11 +10,14 @@ def setup():
     this project. Installs the `common.txt` and `dev.txt` pip requirements and
     initializes/updates any git submodules.
 
-    setup() lso supports the concept of "private packages" - i.e. Python
+    setup() also supports the concept of "private packages" - i.e. Python
     packages that are not available on PyPi but require some local compilation
     and thus don't work well as git submodules. It can either download a tar
     file of the package from S3 or clone a git repository, build and install the
     package.
+
+    Any arbitrary functions in env.extra_setup_tasks will also be run from
+    env.root_dir.
     """
 
     environments.localhost()
@@ -24,6 +27,11 @@ def setup():
             deploy.packages._install_private_package(*package)
     deploy.packages._install_manual_packages(env.root_dir)
     deploy.packages._install_pip_requirements(env.root_dir)
+
+    with cd(env.root_dir):
+        for task in env.extra_setup_tasks:
+            task()
+
 
 def enable():
     """Toggles a value True. Used in 'toggle' commands such as
@@ -45,7 +53,7 @@ def maintenancemode():
     server.
 
     Requires the env keys:
-        
+
         toggle - set by enable() or disable(), indicates whether we should turn
                     maintenance mode on or off.
         settings - relative path from the project root to the settings.py file
@@ -65,7 +73,7 @@ def maintenancemode():
 
 def rollback():
     """Swaps the deployed version of the app to the previous version.
-    
+
     Requires the env keys:
 
         path - root deploy target for this app
@@ -95,7 +103,7 @@ def restart_webserver(hard_reset=False):
 
     Requires the env keys:
 
-        unit - short name of the app, assuming /etc/init.d/%(unit)s is the 
+        unit - short name of the app, assuming /etc/init.d/%(unit)s is the
                 server process init.d script
     """
     require('unit')

@@ -163,6 +163,10 @@ S3 or clone a git repository, build and install the package. The private package
 methods could use a little work - it's probably a better idea to clone a git
 submodule and just run `python setup.py build`.
 
+Lastly, you can provide arbitrary Python functions that will run at the end of
+setup (`env.extra_setup_tasks`). We use this to download data files to developer
+machines (e.g. Lucene indices.
+
 ### fab restart_webserver
 
 Assuming your remote server has an init script for this application's process at
