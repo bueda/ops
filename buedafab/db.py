@@ -51,7 +51,8 @@ def migrate(deployed=False):
     require('release_path')
     require('deployment_type')
     require('virtualenv')
-    if (env.migrate and deployed or confirm("Migrate database?", default=True)):
+    if (env.migrate and
+            (deployed or confirm("Migrate database?", default=True))):
         with cd(env.release_path):
             run("""
                 export DEPLOYMENT_TYPE="%(deployment_type)s"
