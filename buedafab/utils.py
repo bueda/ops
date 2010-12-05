@@ -53,3 +53,11 @@ def branch(ref=None):
     ref = ref or "HEAD"
     return local("git symbolic-ref %s 2>/dev/null | awk -F/ {'print $NF'}"
             % ref)
+
+def sha_for_file(input_file, block_size=2**20):
+    import hashlib
+    sha = hashlib.sha256()
+    with open(input_file, 'rb') as f:
+        for chunk in iter(lambda: f.read(block_size), ''):
+            sha.update(chunk)
+        return sha.hexdigest()

@@ -4,6 +4,9 @@ connect to their API.
 from fabric.api import require, env
 from fabric.decorators import runs_once
 
+from buedafab.operations import exists
+from buedafab.utils import sha_for_file
+
 def collect_load_balanced_instances():
     """Return the fully-qualified domain names of the servers attached to an
     Elastic Load Balancer.
@@ -75,3 +78,16 @@ def elb_remove(instance=None):
             env.load_balancer, [instance])
     print("Status of detaching %s from load balancer %s was %s"
             % (instance, env.load_balancer, status))
+
+@runs_once
+def conditional_s3_get(key, filename, sha=None):
+    """Download a file from S3 to the local machine. Don't re-download if the
+    sha matches (uses sha256).
+    """
+    sha_matches = False
+    if exists(filename) and sha:
+        sha_matches = sha_for_file(filename).startswith(sha)
+        
+    if not exists(filename) or not sha_matches:
+        env.s3_key.key = key
+        env.s3_key.get_contents_to_filename(filename)
