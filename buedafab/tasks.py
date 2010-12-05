@@ -113,3 +113,19 @@ def restart_webserver(hard_reset=False):
 def rechef():
     """Run the latest Chef cookbooks on all servers."""
     sudo('chef-client')
+
+def install_jcc(**kwargs):
+    try:
+        import jcc
+    except ImportError:
+        run('git clone git://gist.github.com/729451.git build-jcc')
+        run('build-jcc/install_jcc.sh')
+        run('rm -rf build-jcc')
+
+def install_pylucene(**kwargs):
+    try:
+        import lucene
+    except ImportError:
+        run('git clone git://gist.github.com/728598.git build-pylucene')
+        run('build-pylucene/install_pylucene.sh')
+        run('rm -rf build-pylucene')
