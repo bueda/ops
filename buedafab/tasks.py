@@ -21,7 +21,6 @@ def setup():
     """
 
     environments.localhost()
-    local('git submodule update --init --recursive')
     with settings(virtualenv=None):
         for package in deploy.packages._read_private_requirements():
             deploy.packages._install_private_package(*package)
@@ -29,6 +28,7 @@ def setup():
     deploy.packages._install_pip_requirements(env.root_dir)
 
     with cd(env.root_dir):
+        local('git submodule update --init --recursive')
         for task in env.extra_setup_tasks:
             task()
 
