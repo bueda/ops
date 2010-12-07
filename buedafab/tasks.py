@@ -114,18 +114,26 @@ def rechef():
     """Run the latest Chef cookbooks on all servers."""
     sudo('chef-client')
 
+def _package_installed(package):
+    with settings(warn_only=True):
+        virtualenv_exists = exists('%(virtualenv)s' % env)
+        if virtualenv_exists:
+            installed = run('%s/bin/python -c "import %s"'
+                    % (env.virtualenv, package))
+        else:
+            installed = run('python -c "import %s"' % package)
+    return installed.return_code == 0
+
 def install_jcc(**kwargs):
-    try:
-        import jcc
-    except ImportError:
+    if not _package_installed('jcc'):
         run('git clone git://gist.github.com/729451.git build-jcc')
-        run('build-jcc/install_jcc.sh')
+        run('VIRTUAL_ENV=%s build-jcc/install_jcc.sh'
+                % utils.absolute_virtualenv_path())
         run('rm -rf build-jcc')
 
 def install_pylucene(**kwargs):
-    try:
-        import lucene
-    except ImportError:
+    if not _package_installed('lucene'):
         run('git clone git://gist.github.com/728598.git build-pylucene')
-        run('build-pylucene/install_pylucene.sh')
+        run('VIRTUAL_ENV=%s build-pylucene/install_pylucene.sh'
+                % utils.absolute_virtualenv_path())
         run('rm -rf build-pylucene')

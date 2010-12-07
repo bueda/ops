@@ -48,6 +48,11 @@ def absolute_release_path():
     require('current_release_path')
     return os.path.join(env.path, env.current_release_path)
 
+def absolute_virtualenv_path():
+    require('virtualenv')
+    return os.environ.get('VIRTUAL_ENV',
+            os.path.join(absolute_release_path(), env.virtualenv))
+
 def branch(ref=None):
     """Return the name of the current git branch."""
     ref = ref or "HEAD"

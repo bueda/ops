@@ -34,4 +34,4 @@ def run_extra_deploy_tasks(deployed=False):
 
     with cd(env.release_path):
         for task in env.extra_deploy_tasks:
-            task(deployed)
+            task(deployed=deployed)
