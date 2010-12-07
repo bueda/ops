@@ -72,6 +72,7 @@ def localhost(deployment_type=None):
         env.hosts = ['localhost']
     env.allow_no_tag = True
     env.deployment_type = deployment_type
+    env.virtualenv = os.environ.get('VIRTUAL_ENV', 'env')
     if deployment_type is None:
         deployment_type = "SOLO"
     env.deployment_type = deployment_type

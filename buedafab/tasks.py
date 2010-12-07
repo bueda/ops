@@ -128,12 +128,12 @@ def install_jcc(**kwargs):
     if not _package_installed('jcc'):
         run('git clone git://gist.github.com/729451.git build-jcc')
         run('VIRTUAL_ENV=%s build-jcc/install_jcc.sh'
-                % utils.absolute_virtualenv_path())
+                % env.virtualenv)
         run('rm -rf build-jcc')
 
 def install_pylucene(**kwargs):
     if not _package_installed('lucene'):
         run('git clone git://gist.github.com/728598.git build-pylucene')
         run('VIRTUAL_ENV=%s build-pylucene/install_pylucene.sh'
-                % utils.absolute_virtualenv_path())
+                % env.virtualenv)
         run('rm -rf build-pylucene')
