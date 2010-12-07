@@ -29,7 +29,7 @@ def run_extra_deploy_tasks(deployed=False):
 
     """
     require('release_path')
-    if not env.package_installation_scripts:
+    if not env.extra_deploy_tasks:
         return
 
     with cd(env.release_path):
