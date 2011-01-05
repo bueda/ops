@@ -61,6 +61,7 @@ def campfire_notify(deployed=False):
             require('release')
             branch = env.release
 
+        name = env.unit
         deployer = os.getlogin()
         deployed = env.deployed_version
         target = env.deployment_type.lower()
@@ -73,11 +74,11 @@ def campfire_notify(deployed=False):
         room = campfire.find_room_by_name(env.campfire_room)
         room.join()
         if deployed:
-            message = ('%(deployer)s is deploying %(branch)s '
+            message = ('%(deployer)s is deploying %(name)s %(branch)s '
                 '(%(deployed)s..%(deploying)s) to %(target)s %(compare_url)s'
                 % locals())
         else:
-            message = ('%(deployer)s is deploying %(branch)s to %(target)s'
+            message = ('%(deployer)s is deploying %(name)s %(branch)s to %(target)s'
                 % locals())
         room.speak(message)
         print 'Campfire notified that %s' % message
