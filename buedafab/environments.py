@@ -26,6 +26,9 @@ def development():
         env.hosts = ['dev.bueda.com:%(ssh_port)d' % env]
     env.allow_no_tag = True
     env.deployment_type = "DEV"
+    if (hasattr(env, 'pip_requirements')
+            and hasattr(env, 'pip_requirements_dev')):
+        env.pip_requirements += env.pip_requirements_dev
 
 def staging():
     """[Env] Staging server environment
