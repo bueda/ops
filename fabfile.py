@@ -39,7 +39,6 @@ def spawn(ami=None, region=None, chef_roles=None):
 
     command = 'knife ec2 server create %s ' % role_string
     command += '-Z %(region)s ' % env
-    command += '-A %(aws_access_key)s -K %(aws_secret_key)s ' % env
     command += '-f %(instance_type)s -i %(ami)s ' % env
     command += '-G %s ' % ','.join(env.security_groups)
     command += '-S %(key_name)s ' % env
