@@ -5,20 +5,20 @@ Definitions of available EC2 server types.
 from fabric.api import env
 
 def _32bit():
-    """ Ubuntu Lucid 10.04 32-bit, Opscode Chef AMI for Chef 0.8.x """
-    env.ami = "ami-1437dd7d"
+    """ Ubuntu Maverick 10.10 32-bit """
+    env.ami = "ami-a6f504cf"
 
 def _32bit_ebs():
-    """ Ubuntu Lucid 10.04 32-bit, Opscode Chef AMI for Chef 0.8.x """
-    env.ami = "ami-1234de7b"
+    """ Ubuntu Maverick 10.10 32-bit """
+    env.ami = "ami-ccf405a5"
 
 def _64bit_ebs():
-    """ Ubuntu Lucid 10.04 64-bit, Opscode Chef AMI for Chef 0.8.x """
-    env.ami = "ami-1634de7f"
+    """ Ubuntu Maverick 10.10 64-bit """
+    env.ami = "ami-cef405a7"
 
 def _64bit():
-    """ Ubuntu Lucid 10.04 64-bit, Opscode Chef AMI for Chef 0.8.x """
-    env.ami = "ami-4234de2b"
+    """ Ubuntu Maverick 10.10 64-bit """
+    env.ami = "ami-08f40561"
 
 def micro():
     """ Micro instance, 613MB, up to 2 CPU (64-bit) """
