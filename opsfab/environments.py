@@ -19,19 +19,14 @@ def production():
     shared_production()
     env.security_groups = ["ssh", "database-client"]
     env.key_name = "production"
-
-def lace():
-    production()
-    env.chef_roles = ["lace"]
-    env.security_groups.extend(["lace"])
+    env.chef_roles = ["production"]
 
 def web():
     production()
-    env.chef_roles = ["app_server"]
+    env.chef_roles.append("app_server")
     env.security_groups.extend(["web"])
 
-def api():
+def support():
     production()
-    env.chef_roles = ["api"]
-    env.security_groups.extend(["api"])
-
+    env.chef_roles.append("support_server")
+    env.security_groups.extend(["support"])
