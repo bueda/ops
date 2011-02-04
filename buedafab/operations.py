@@ -49,11 +49,11 @@ def run(command, shell=True, pty=False, capture=False, forward_agent=False):
     if 'localhost' in env.hosts:
         return local(command, capture)
     elif forward_agent:
-        return sshagent_run(command)
+        return sshagent_run(command, capture)
     else:
         return fabric_run(command, shell, pty)
 
-def sshagent_run(command):
+def sshagent_run(command, capture=False):
     """
     Helper function.
     Runs a command with SSH agent forwarding enabled.
@@ -80,9 +80,10 @@ def sshagent_run(command):
                 host = env.host
 
         if port:
-            local('ssh -p %s -A %s "%s"' % (port, host, real_command))
+            local('ssh -p %s -A %s "%s"' % (port, host, real_command),
+                    capture=capture)
         else:
-            local('ssh -A %s "%s"' % (env.host, real_command))
+            local('ssh -A %s "%s"' % (env.host, real_command), capture=capture)
 
 def sudo(command, shell=True, user=None, pty=False):
     require('hosts')
