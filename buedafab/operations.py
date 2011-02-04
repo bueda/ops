@@ -2,7 +2,7 @@
 Fabric commands.
 """
 from fabric.api import (run as fabric_run, local, sudo as fabric_sudo, hide,
-        put as fabric_put, settings, env, require)
+        put as fabric_put, settings, env, require, abort)
 from fabric.contrib.files import (exists as fabric_exists, sed as fabric_sed)
 import os
 
@@ -44,23 +44,29 @@ def put(local_path, remote_path, mode=None):
     else:
         return fabric_put(local_path, remote_path, mode)
 
-def run(command, shell=True, pty=False, capture=False, forward_agent=False):
+def run(command, shell=True, pty=False, capture=False, forward_agent=False,
+        use_sudo=False):
     require('hosts')
     if 'localhost' in env.hosts:
         return local(command, capture)
     elif forward_agent:
-        return sshagent_run(command, capture)
+        if not env.host:
+            abort("At least one host is required")
+        return sshagent_run(command, capture, use_sudo)
     else:
         return fabric_run(command, shell, pty)
 
-def sshagent_run(command, capture=False):
+def sshagent_run(command, capture=False, use_sudo=False):
     """
     Helper function.
     Runs a command with SSH agent forwarding enabled.
-    
-    Note:: Fabric (and paramiko) can't forward your SSH agent. 
+
+    Note:: Fabric (and paramiko) can't forward your SSH agent.
     This helper uses your system's ssh to do so.
     """
+
+    if use_sudo:
+        command = 'sudo %s' % command
 
     cwd = env.get('cwd', '')
     if cwd:
