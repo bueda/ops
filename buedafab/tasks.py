@@ -103,12 +103,12 @@ def restart_webserver(hard_reset=False):
 
     Requires the env keys:
 
-        unit - short name of the app, assuming /etc/init.d/%(unit)s is the
-                server process init.d script
+        unit - short name of the app, assuming /etc/sv/%(unit)s is the
+                runit config path
     """
     require('unit')
     with settings(warn_only=True):
-        sudo('/etc/init.d/%(unit)s restart' % env)
+        sudo('sv hup %(unit)s' % env)
 
 def rechef():
     """Run the latest Chef cookbooks on all servers."""
