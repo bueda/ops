@@ -23,6 +23,7 @@ def bootstrap_release_folders():
     with cd(os.path.join(env.path, env.releases_root)):
         if not exists(env.release_paths[1]):
             run('cp -R %s %s' % (env.release_paths[0], env.release_paths[1]))
+    chmod(os.path.join(env.path, env.releases_root), 'g+w', use_sudo=True)
 
 def make_pretty_release():
     """Assigns env.pretty_release to the commit identifier returned by 'git
