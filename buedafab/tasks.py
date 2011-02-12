@@ -108,10 +108,7 @@ def restart_webserver(hard_reset=False):
     """
     require('unit')
     with settings(warn_only=True):
-        if hard_reset:
-            sudo('/etc/init.d/%(unit)s restart' % env)
-        else:
-            sudo('sv hup %(unit)s' % env)
+        sudo('/etc/init.d/%(unit)s restart' % env)
 
 def rechef():
     """Run the latest Chef cookbooks on all servers."""
