@@ -5,7 +5,8 @@ from fabric.decorators import runs_once
 import os
 import re
 
-from buedafab.operations import run, exists, conditional_mkdir, conditional_rm
+from buedafab.operations import (run, exists, conditional_mkdir,
+        conditional_rm, chmod)
 from buedafab import utils
 
 def bootstrap_release_folders():
