@@ -143,7 +143,7 @@ def conditional_rm(path, recursive=False):
             cmd += ' -rf'
         run('%(cmd)s %(path)s' % locals())
 
-def conditional_mkdir(path, group=None, mode=None, use_local=False,
+def conditional_mkdir(path, group=None, mode=None, user=None, use_local=False,
         use_sudo=False):
     cmd = 'mkdir -p %(path)s' % locals()
     if not exists(path):
@@ -155,5 +155,7 @@ def conditional_mkdir(path, group=None, mode=None, use_local=False,
             run(cmd)
     if group:
         chgrp(path, group, use_sudo=True)
+    if user:
+        chown(path, user, use_sudo=True)
     if mode:
         chmod(path, mode, use_sudo=True)
