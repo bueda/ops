@@ -2,8 +2,8 @@
 from fabric.api import warn, cd, require, local, env, settings, abort
 import os
 
-from buedafab.operations import run, sed, put
-from buedafab import celery, db, tasks, notify, testing, utils, testing
+from buedafab.operations import run, put, chmod
+from buedafab import celery, db, tasks, notify, testing, utils
 from buedafab import deploy
 
 def _git_deploy(release, skip_tests):
@@ -49,6 +49,7 @@ def _git_deploy(release, skip_tests):
     hard_reset = deploy.packages.install_requirements(deployed)
     deploy.utils.run_extra_deploy_tasks(deployed)
     local('git checkout %s' % starting_branch)
+    chmod(os.path.join(env.path, env.releases_root), 'g+w', use_sudo=True)
     return deployed, hard_reset
 
 def default_deploy(release=None, skip_tests=None):
