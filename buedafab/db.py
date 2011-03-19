@@ -1,19 +1,19 @@
 """Utilities for updating schema and loading data into a database (all Django
 specific at the moment.
 """
-from fabric.api import require, env, cd
+from fabric.api import require, env
 from fabric.contrib.console import confirm
 from fabric.decorators import runs_once
-import os
+from fabric.colors import yellow
 
-from buedafab.operations import run
+from buedafab.django.management import django_manage_run
 
 @runs_once
 def load_data():
     """Load extra fixtures into the database.
 
     Requires the env keys:
-        
+
         release_path -- remote path of the deployed app
         deployment_type -- app environment to set before loading the data (i.e.
                             which database should it be loaded into)
@@ -25,13 +25,8 @@ def load_data():
     require('deployment_type')
     require('virtualenv')
     if env.migrated or env.updated_db:
-        with cd(env.release_path):
-            for fixture in env.extra_fixtures:
-                env.fixture = fixture
-                run("""
-                    export DEPLOYMENT_TYPE="%(deployment_type)s"
-                    %(virtualenv)s/bin/python ./manage.py loaddata %(fixture)s
-                    """ % env)
+        for fixture in env.extra_fixtures:
+            django_manage_run("loaddata %(fixture)s" % fixture)
 
 @runs_once
 def migrate(deployed=False):
@@ -41,7 +36,7 @@ def migrate(deployed=False):
     migrate.
 
     Requires the env keys:
-        
+
         release_path -- remote path of the deployed app
         deployment_type -- app environment to set before loading the data (i.e.
                             which database should it be loaded into)
@@ -52,12 +47,8 @@ def migrate(deployed=False):
     require('deployment_type')
     require('virtualenv')
     if (env.migrate and
-            (deployed or confirm("Migrate database?", default=True))):
-        with cd(env.release_path):
-            run("""
-                export DEPLOYMENT_TYPE="%(deployment_type)s"
-                    %(virtualenv)s/bin/python ./manage.py migrate
-                """ % env)
+            (deployed or confirm(yellow("Migrate database?"), default=True))):
+        django_manage_run("migrate")
         env.migrated = True
 
 @runs_once
@@ -68,7 +59,7 @@ def update_db(deployed=False):
     update.
 
     Requires the env keys:
-        
+
         release_path -- remote path of the deployed app
         deployment_type -- app environment to set before loading the data (i.e.
                             which database should it be loaded into)
@@ -78,10 +69,6 @@ def update_db(deployed=False):
     require('deployment_type')
     require('virtualenv')
     require('release_path')
-    if deployed or confirm("Update database?", default=True):
-        with cd(env.release_path):
-            run("""
-                export DEPLOYMENT_TYPE="%(deployment_type)s"
-                %(virtualenv)s/bin/python ./manage.py syncdb --noinput
-                """ % env)
+    if deployed or confirm(yellow("Update database?"), default=True):
+        django_manage_run("syncdb --noinput")
         env.updated_db = True

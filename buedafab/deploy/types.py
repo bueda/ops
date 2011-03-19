@@ -1,5 +1,6 @@
 """Deploy commands for applications following Bueda's boilerplate layouts."""
 from fabric.api import warn, cd, require, local, env, settings, abort
+from fabric.colors import green, red
 import os
 
 from buedafab.operations import run, put, chmod
@@ -8,21 +9,23 @@ from buedafab import deploy
 
 def _git_deploy(release, skip_tests):
     starting_branch = utils.branch()
+    print(green("Deploying from git branch '%s'" % starting_branch))
     # Ideally, tests would run on the version you are deploying exactly.
     # There is no easy way to require that without allowing users to go
     # through the entire tagging process before failing tests.
     if not skip_tests and testing.test():
-        abort("Unit tests did not pass -- must fix before deploying")
+        abort(red("Unit tests did not pass -- must fix before deploying"))
 
-    local('git push %(master_remote)s' % env)
+    local('git push %(master_remote)s' % env, capture=True)
     deploy.release.make_release(release)
 
     require('pretty_release')
     require('path')
     require('hosts')
 
+    print(green("Deploying version %s" % env.pretty_release))
     put(os.path.join(os.path.abspath(os.path.dirname(__file__)),
-            '..', 'files', 'ssh_config'), '~/.ssh/config')
+            '..', 'files', 'ssh_config'), '.ssh/config')
 
     deployed = False
     hard_reset = False
@@ -31,6 +34,8 @@ def _git_deploy(release, skip_tests):
     for release_path in env.release_paths:
         with cd(os.path.join(env.path, env.releases_root, release_path)):
             deployed_versions[run('git describe')] = release_path
+    print(green("The host '%s' currently has the revisions: %s"
+        % (env.host, deployed_versions)))
     if env.pretty_release not in deployed_versions:
         env.release_path = os.path.join(env.path, env.releases_root,
                 deploy.release.alternative_release_path())
@@ -41,14 +46,14 @@ def _git_deploy(release, skip_tests):
                 env.deploy_user)
         deployed = True
     else:
-        warn("%(pretty_release)s is already deployed" % env)
+        warn(red("%(pretty_release)s is already deployed" % env))
         env.release_path = os.path.join(env.path, env.releases_root,
                 deployed_versions[env.pretty_release])
     with cd(env.release_path):
         run('git submodule update --init --recursive', forward_agent=True)
     hard_reset = deploy.packages.install_requirements(deployed)
     deploy.utils.run_extra_deploy_tasks(deployed)
-    local('git checkout %s' % starting_branch)
+    local('git checkout %s' % starting_branch, capture=True)
     chmod(os.path.join(env.path, env.releases_root), 'g+w', use_sudo=True)
     return deployed, hard_reset
 
@@ -97,3 +102,5 @@ def django_deploy(release=None, skip_tests=None):
     tasks.restart_webserver(hard_reset)
     notify.hoptoad_deploy(deployed)
     notify.campfire_notify(deployed)
+    print(green("%(pretty_release)s is now deployed to %(deployment_type)s"
+        % env))

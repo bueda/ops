@@ -2,9 +2,11 @@
 Fabric commands.
 """
 from fabric.api import (run as fabric_run, local, sudo as fabric_sudo, hide,
-        put as fabric_put, settings, env, require, abort)
+        put as fabric_put, settings, env, require, abort, cd)
 from fabric.contrib.files import (exists as fabric_exists, sed as fabric_sed)
 import os
+
+from buedafab.utils import absolute_release_path
 
 def chmod(path, mode, recursive=True, use_sudo=False):
     cmd = 'chmod %(mode)s %(path)s' % locals()
@@ -30,7 +32,8 @@ def _conditional_sudo(cmd, use_sudo):
     else:
         run(cmd)
 
-def put(local_path, remote_path, mode=None):
+def put(local_path, remote_path, mode=None, **kwargs):
+    """If the host is localhost, puts the file without requiring SSH."""
     require('hosts')
     if 'localhost' in env.hosts:
         if (os.path.isdir(remote_path) and
@@ -42,21 +45,24 @@ def put(local_path, remote_path, mode=None):
             local('chmod -R %o %s' % (mode, remote_path))
         return result
     else:
-        return fabric_put(local_path, remote_path, mode)
+        return fabric_put(local_path, remote_path, mode, **kwargs)
 
-def run(command, shell=True, pty=False, capture=False, forward_agent=False,
-        use_sudo=False):
+def run(command, forward_agent=False, use_sudo=False, **kwargs):
     require('hosts')
     if 'localhost' in env.hosts:
-        return local(command, capture)
+        return local(command)
     elif forward_agent:
         if not env.host:
             abort("At least one host is required")
-        return sshagent_run(command, capture, use_sudo)
+        return sshagent_run(command, use_sudo=use_sudo)
     else:
-        return fabric_run(command, shell, pty)
+        return fabric_run(command, **kwargs)
 
-def sshagent_run(command, capture=False, use_sudo=False):
+def virtualenv_run(command):
+    with cd(absolute_release_path()):
+        run("%(virtualenv)s/bin/python %(command)s" % (env.virtualenv, command))
+
+def sshagent_run(command, use_sudo=False):
     """
     Helper function.
     Runs a command with SSH agent forwarding enabled.
@@ -86,12 +92,12 @@ def sshagent_run(command, capture=False, use_sudo=False):
                 host = env.host
 
         if port:
-            local('ssh -p %s -A %s "%s"' % (port, host, real_command),
-                    capture=capture)
+            local('ssh -p %s -A %s "%s"' % (port, host, real_command))
         else:
-            local('ssh -A %s "%s"' % (env.host, real_command), capture=capture)
+            local('ssh -A %s "%s"' % (env.host, real_command))
 
 def sudo(command, shell=True, user=None, pty=False):
+    """If the host is localhost, runs without requiring SSH."""
     require('hosts')
     if 'localhost' in env.hosts:
         command = 'sudo %s' % command
@@ -110,7 +116,7 @@ def exists(path, use_sudo=False, verbose=False):
     else:
         return fabric_exists(path, use_sudo, verbose)
 
-def sed(filename, before, after, limit='', use_sudo=False, backup='.back'):
+def sed(filename, before, after, limit='', use_sudo=False, backup='.bak'):
     require('hosts')
     if 'localhost' in env.hosts:
         # Code copied from Fabric - is there a better way to have Fabric's sed()
@@ -134,25 +140,23 @@ def sed(filename, before, after, limit='', use_sudo=False, backup='.back'):
 
 def conditional_mv(source, destination):
     if exists(source):
-        run('mv %(source)s %(destination)s' % locals())
+        run('mv %s %s' % (source, destination))
 
 def conditional_rm(path, recursive=False):
     if exists(path):
         cmd = 'rm'
         if recursive:
             cmd += ' -rf'
-        run('%(cmd)s %(path)s' % locals())
+        run('%s %s' % (cmd, path))
 
 def conditional_mkdir(path, group=None, mode=None, user=None, use_local=False,
         use_sudo=False):
-    cmd = 'mkdir -p %(path)s' % locals()
+    cmd = 'mkdir -p %s' % path
     if not exists(path):
         if use_local:
             local(cmd)
-        elif use_sudo:
-            sudo(cmd)
         else:
-            run(cmd)
+            _conditional_sudo(cmd, use_sudo)
     if group:
         chgrp(path, group, use_sudo=True)
     if user:

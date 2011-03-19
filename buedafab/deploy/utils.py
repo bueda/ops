@@ -16,10 +16,11 @@ def make_archive():
     require('scratch_path')
     with cd(env.scratch_path):
         deploy.release.make_pretty_release()
-        local('git checkout %(release)s' % env)
-        local('git submodule update --init')
+        local('git checkout %(release)s' % env, capture=True)
+        local('git submodule update --init', capture=True)
         local('git archive --prefix=%(unit)s/ --format tar '
-                '%(release)s | gzip > %(scratch_path)s/%(archive)s' % env)
+                '%(release)s | gzip > %(scratch_path)s/%(archive)s' % env,
+                capture=True)
 
 def run_extra_deploy_tasks(deployed=False):
     """Run arbitrary functions listed in env.package_installation_scripts.

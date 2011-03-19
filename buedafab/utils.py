@@ -1,5 +1,6 @@
 """Lower-level utilities, including some git helpers."""
 from fabric.api import env, local, require
+from fabric.colors import green
 import os
 
 def compare_versions(x, y):
@@ -31,9 +32,13 @@ def compare_versions(x, y):
 
 def store_deployed_version():
     if env.sha_url_template:
-        env.deployed_version = local('curl -s %s' % sha_url()).strip('"')
+        env.deployed_version = local('curl -s %s' % sha_url(), capture=True
+                ).strip('"')
         if len(env.deployment_type) > 10:
             env.deployed_version = None
+        else:
+            print(green("The currently deployed version is %(deployed_version)s"
+                % env))
 
 def sha_url():
     require('sha_url_template')
@@ -52,7 +57,7 @@ def branch(ref=None):
     """Return the name of the current git branch."""
     ref = ref or "HEAD"
     return local("git symbolic-ref %s 2>/dev/null | awk -F/ {'print $NF'}"
-            % ref)
+            % ref, capture=True)
 
 def sha_for_file(input_file, block_size=2**20):
     import hashlib

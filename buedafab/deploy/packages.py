@@ -1,6 +1,7 @@
 """Utilities to install Python package dependencies."""
 from fabric.api import warn, cd, require, local, env, settings
 from fabric.contrib.console import confirm
+from fabric.colors import yellow
 import os
 
 from buedafab.operations import run, exists, put
@@ -99,7 +100,7 @@ def install_requirements(deployed=False):
     with settings(cd(env.release_path), warn_only=True):
         virtualenv_exists = exists('%(virtualenv)s' % env)
     if (deployed or not virtualenv_exists or
-            confirm("Reinstall Python dependencies?", default=True)):
+            confirm(yellow("Reinstall Python dependencies?"), default=True)):
         _install_pip_requirements()
         for package in _read_private_requirements():
             _install_private_package(*package)

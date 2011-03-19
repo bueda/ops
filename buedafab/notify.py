@@ -1,6 +1,6 @@
 """Deploy notification hooks for third party services like Campfire and Hoptoad.
 """
-from fabric.api import env, require, cd, local
+from fabric.api import env, require, local
 from fabric.decorators import runs_once
 import os
 
@@ -11,7 +11,7 @@ def hoptoad_deploy(deployed=False):
     """Notify Hoptoad of the time and commit SHA of an app deploy.
 
     Requires the hoppy Python package and the env keys:
-        
+
         hoptoad_api_key - as it sounds.
         deployment_type - app environment
         release - the commit SHA or git tag of the deployed version
@@ -22,6 +22,7 @@ def hoptoad_deploy(deployed=False):
     require('release')
     require('scm')
     if deployed and env.hoptoad_api_key:
+        from ipdb import set_trace; set_trace(); # TODO
         commit = local('git rev-parse --short %(release)s' % env)
         import hoppy.deploy
         hoppy.api_key = env.hoptoad_api_key
@@ -39,10 +40,10 @@ def campfire_notify(deployed=False):
     an app deploy.
 
     Requires the pinder Python package and the env keys:
-        
+
         deployment_type - app environment
         release - the commit SHA or git tag of the deployed version
-        scm_http_url - path to an HTTP view of the remote git repository 
+        scm_http_url - path to an HTTP view of the remote git repository
         campfire_subdomain - subdomain of your Campfire account
         campfire_token - API token for Campfire
         campfire_room - the room to join and notify (the string name, e.g.

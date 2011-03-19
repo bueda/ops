@@ -18,8 +18,7 @@ def lint():
             env.python_path_extensions += ':' + full_path
     with cd(env.root_dir):
         local('PYTHONPATH=$PYTHONPATH:%(python_path_extensions)s '
-            'pylint %(root_dir)s --rcfile=.pylintrc 2>/dev/null' % env,
-                capture=False)
+            'pylint %(root_dir)s --rcfile=.pylintrc 2>/dev/null' % env)
 
 @runs_once
 def test(dir=None, deployment_type=None):
@@ -40,7 +39,7 @@ def test(dir=None, deployment_type=None):
 @runs_once
 def nose_test_runner(deployment_type=None):
     """Basic nosetests suite runner."""
-    return local('nosetests', capture=False).return_code
+    return local('nosetests').return_code
 
 @runs_once
 def webpy_test_runner(deployment_type=None):
@@ -54,7 +53,7 @@ def webpy_test_runner(deployment_type=None):
 def tornado_test_runner(deployment_type=None):
     """Tornado test suite runner - depends on using Bueda's tornado-boilerplate
     app layout."""
-    return local('tests/run_tests.py', capture=False).return_code
+    return local('tests/run_tests.py').return_code
 
 @runs_once
 def django_test_runner(deployment_type=None):
@@ -62,4 +61,4 @@ def django_test_runner(deployment_type=None):
     command = './manage.py test'
     if deployment_type:
         command = 'DEPLOYMENT_TYPE=%s ' % deployment_type + command
-    return local(command, capture=False).return_code
+    return local(command).return_code

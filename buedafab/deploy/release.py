@@ -2,6 +2,7 @@
 from fabric.api import cd, require, local, env, prompt, settings, abort
 from fabric.contrib.console import confirm
 from fabric.decorators import runs_once
+from fabric.colors import green, yellow
 import os
 import re
 
@@ -15,7 +16,8 @@ def bootstrap_release_folders():
     """
     require('path')
     require('deploy_group')
-    conditional_mkdir(os.path.join(env.path, env.releases_root), env.deploy_group, 'g+w', use_sudo=True)
+    conditional_mkdir(os.path.join(env.path, env.releases_root),
+            env.deploy_group, 'g+w', use_sudo=True)
     with cd(os.path.join(env.path, env.releases_root)):
         first_exists = exists(env.release_paths[0])
         if not first_exists:
@@ -31,11 +33,12 @@ def make_pretty_release():
     describe'.
 
     Requires the env keys:
-        release - 
-        unit - 
+        release -
+        unit -
     """
     require('release')
-    env.pretty_release = local('git describe %(release)s' % env).rstrip('\n')
+    env.pretty_release = local('git describe %(release)s' % env, capture=True
+            ).rstrip('\n')
     env.archive = '%(pretty_release)s-%(unit)s.tar' % env
 
 def make_head_commit():
@@ -45,14 +48,14 @@ def make_head_commit():
         default_revision - the commit ref for HEAD
     """
     revision = local('git rev-list %(default_revision)s '
-            '-n 1 --abbrev-commit --abbrev=7' % env)
+            '-n 1 --abbrev-commit --abbrev=7' % env, capture=True)
     env.head_commit = revision.rstrip('\n')
 
 @runs_once
 def make_release(release=None):
     """Based on the deployment type and any arguments from the command line,
     determine the proper identifier for the commit to deploy.
-    
+
     If a tag is required (e.g. when in the production app environment), the
     deploy must be coming from the master branch, and cannot proceed without
     either creating a new tag or specifing and existing one.
@@ -72,8 +75,9 @@ def make_release(release=None):
             if branch != "master":
                 abort("Make sure to checkout the master branch and merge in the"
                         " development branch before deploying to production.")
-            local('git checkout master')
-        description = local('git describe master' % env).rstrip('\n')
+            local('git checkout master', capture=True)
+        description = local('git describe master' % env, capture=True
+                ).rstrip('\n')
         if '-' in description:
             env.latest_tag = description[:description.find('-')]
         else:
@@ -83,30 +87,31 @@ def make_release(release=None):
         env.release = env.release or env.latest_tag
         env.commit = 'HEAD'
         if not env.allow_no_tag:
-            if confirm("Tag this release?", default=False):
+            if confirm(yellow("Tag this release?"), default=False):
                 require('master_remote')
                 from prettyprint import pp
-                print("The last 5 tags were: ")
-                tags = local('git tag | tail -n 20')
+                print(green("The last 5 tags were: "))
+                tags = local('git tag | tail -n 20', capture=True)
                 pp(sorted(tags.split('\n'), utils.compare_versions,
                         reverse=True))
                 prompt("New release tag in the format vX.Y[.Z]?",
                         'tag',
                         validate=env.version_pattern)
                 require('commit')
-                local('git tag -s %(tag)s %(commit)s' % env, capture=False)
-                local('git push --tags %(master_remote)s' % env)
+                local('git tag -s %(tag)s %(commit)s' % env, capture=True)
+                local('git push --tags %(master_remote)s' % env, capture=True)
                 env.tagged = True
                 env.release = env.tag
-                local('git fetch --tags %(master_remote)s' % env)
+                local('git fetch --tags %(master_remote)s' % env, capture=True)
             else:
-                print("Using latest tag %(latest_tag)s" % env)
+                print(green("Using latest tag %(latest_tag)s" % env))
                 env.release = env.latest_tag
         else:
             make_head_commit()
             env.release = env.head_commit
+            print(green("Using the HEAD commit %s" % env.head_commit))
     else:
-        local('git checkout %s' % env.release)
+        local('git checkout %s' % env.release, capture=True)
         env.tagged = re.match(env.version_pattern, env.release)
     make_pretty_release()
 
@@ -138,7 +143,8 @@ def alternative_release_path():
     """
 
     if exists(utils.absolute_release_path()):
-        current_release_path = run('readlink %s' % utils.absolute_release_path())
+        current_release_path = run('readlink %s'
+                % utils.absolute_release_path())
         if os.path.basename(current_release_path) == env.release_paths[0]:
             alternative = env.release_paths[1]
         else:
