@@ -26,7 +26,7 @@ def load_data():
     require('virtualenv')
     if env.migrated or env.updated_db:
         for fixture in env.extra_fixtures:
-            django_manage_run("loaddata %(fixture)s" % fixture)
+            django_manage_run("loaddata %s" % fixture)
 
 @runs_once
 def migrate(deployed=False):
