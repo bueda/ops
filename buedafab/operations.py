@@ -58,8 +58,9 @@ def run(command, forward_agent=False, use_sudo=False, **kwargs):
     else:
         return fabric_run(command, **kwargs)
 
-def virtualenv_run(command):
-    with cd(absolute_release_path()):
+def virtualenv_run(command, path=None):
+    path = path or absolute_release_path()
+    with cd(path):
         run("%s/bin/python %s" % (env.virtualenv, command))
 
 def sshagent_run(command, use_sudo=False):
