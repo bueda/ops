@@ -60,7 +60,7 @@ def run(command, forward_agent=False, use_sudo=False, **kwargs):
 
 def virtualenv_run(command):
     with cd(absolute_release_path()):
-        run("%(virtualenv)s/bin/python %(command)s" % (env.virtualenv, command))
+        run("%s/bin/python %s" % (env.virtualenv, command))
 
 def sshagent_run(command, use_sudo=False):
     """
