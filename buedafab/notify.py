@@ -22,7 +22,6 @@ def hoptoad_deploy(deployed=False):
     require('release')
     require('scm')
     if deployed and env.hoptoad_api_key:
-        from ipdb import set_trace; set_trace(); # TODO
         commit = local('git rev-parse --short %(release)s' % env)
         import hoppy.deploy
         hoppy.api_key = env.hoptoad_api_key
