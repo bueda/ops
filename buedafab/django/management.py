@@ -2,6 +2,7 @@ from fabric.api import require, prefix, env
 from fabric.decorators import runs_once
 
 from buedafab.operations import virtualenv_run
+from buedafab.utils import absolute_release_path
 
 def django_manage_run(cmd):
     require('deployment_type')
@@ -10,4 +11,5 @@ def django_manage_run(cmd):
 
 @runs_once
 def shell():
-    virtualenv_run("./manage.py shell")
+    env.release_path = absolute_release_path()
+    django_manage_run('shell')
