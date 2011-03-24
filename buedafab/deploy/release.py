@@ -98,7 +98,7 @@ def make_release(release=None):
                         'tag',
                         validate=env.version_pattern)
                 require('commit')
-                local('git tag -s %(tag)s %(commit)s' % env, capture=True)
+                local('git tag -s %(tag)s %(commit)s' % env)
                 local('git push --tags %(master_remote)s' % env, capture=True)
                 env.tagged = True
                 env.release = env.tag
