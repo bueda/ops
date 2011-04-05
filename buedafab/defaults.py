@@ -66,7 +66,7 @@ if 'AWS_ACCESS_KEY_ID' in os.environ and 'AWS_SECRET_ACCESS_KEY' in os.environ:
         import boto.s3.key
     except ImportError:
         warn('boto not installed -- required to use S3 or EC2. '
-                'Try running "fab setup"')
+                'Try running "fab setup" from the root of the ops repo')
     else:
         env.aws_access_key = os.environ['AWS_ACCESS_KEY_ID']
         env.aws_secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
