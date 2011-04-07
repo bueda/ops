@@ -25,13 +25,18 @@ def hoptoad_deploy(deployed=False):
         commit = local('git rev-parse --short %(release)s' % env)
         import hoppy.deploy
         hoppy.api_key = env.hoptoad_api_key
-        hoppy.deploy.Deploy().deploy(
-            env=env.deployment_type,
-            scm_revision=commit,
-            scm_repository=env.scm,
-            local_username=os.getlogin())
-        print ('Hoptoad notified of deploy of %s@%s to %s environment by %s'
-                % (env.scm, commit, env.deployment_type, os.getlogin()))
+        try:
+            hoppy.deploy.Deploy().deploy(
+                env=env.deployment_type,
+                scm_revision=commit,
+                scm_repository=env.scm,
+                local_username=os.getlogin())
+        except Exception, e:
+            print ("Couldn't notify Hoptoad of the deploy, but continuing "
+                    "anyway: %s" % e)
+        else:
+            print ('Hoptoad notified of deploy of %s@%s to %s environment by %s'
+                    % (env.scm, commit, env.deployment_type, os.getlogin()))
 
 @runs_once
 def campfire_notify(deployed=False):
