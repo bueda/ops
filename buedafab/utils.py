@@ -1,5 +1,5 @@
 """Lower-level utilities, including some git helpers."""
-from fabric.api import env, local, require
+from fabric.api import env, local, require, settings
 from fabric.colors import green
 import os
 
@@ -32,9 +32,11 @@ def compare_versions(x, y):
 
 def store_deployed_version():
     if env.sha_url_template:
-        env.deployed_version = local('curl -s %s' % sha_url(), capture=True
-                ).strip('"')
-        if len(env.deployment_type) > 10:
+        env.deployed_version = None
+        with settings(warn_only=True):
+            env.deployed_version = local('curl -s %s' % sha_url(), capture=True
+                    ).strip('"')
+        if env.deployed_version and len(env.deployment_type) > 10:
             env.deployed_version = None
         else:
             print(green("The currently deployed version is %(deployed_version)s"
