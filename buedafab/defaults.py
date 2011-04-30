@@ -74,6 +74,8 @@ if 'AWS_ACCESS_KEY_ID' in os.environ and 'AWS_SECRET_ACCESS_KEY' in os.environ:
                 env.aws_access_key, env.aws_secret_key)
         env.ec2_connection = boto.ec2.EC2Connection(
                     env.aws_access_key, env.aws_secret_key)
+        # TODO this recently became required as a workaround?
+        env.ec2_connection.SignatureVersion = '1'
         _s3_connection = boto.s3.connection.S3Connection(env.aws_access_key,
                 env.aws_secret_key)
 
