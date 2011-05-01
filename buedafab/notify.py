@@ -60,8 +60,8 @@ def campfire_notify(deployed=False):
     if (deployed and env.campfire_subdomain and env.campfire_token
             and env.campfire_room):
         from pinder import Campfire
-        deploying = local('git rev-parse --short %(release)s' % env,
-                capture=True)
+        deploying = local('git rev-list --abbrev-commit %s | head -n 1' %
+                env.release, capture=True)
         branch = utils.branch(env.release)
 
         if env.tagged:
