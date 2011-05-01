@@ -22,7 +22,8 @@ def hoptoad_deploy(deployed=False):
     require('release')
     require('scm')
     if deployed and env.hoptoad_api_key:
-        commit = local('git rev-parse --short %(release)s' % env)
+        commit = local('git rev-parse --short %(release)s' % env,
+                capture=True)
         import hoppy.deploy
         hoppy.api_key = env.hoptoad_api_key
         try:
@@ -59,7 +60,8 @@ def campfire_notify(deployed=False):
     if (deployed and env.campfire_subdomain and env.campfire_token
             and env.campfire_room):
         from pinder import Campfire
-        deploying = local('git rev-parse --short %(release)s' % env)
+        deploying = local('git rev-parse --short %(release)s' % env,
+                capture=True)
         branch = utils.branch(env.release)
 
         if env.tagged:
@@ -71,20 +73,20 @@ def campfire_notify(deployed=False):
         deployed = env.deployed_version
         target = env.deployment_type.lower()
         source_repo_url = env.scm_http_url
-        compare_url = ('%(source_repo_url)s/compare/%(deployed)s'
-                '...%(deploying)s' % locals())
+        compare_url = ('%s/compare/%s...%s' % (source_repo_url, deployed,
+                deploying))
 
         campfire = Campfire(env.campfire_subdomain, env.campfire_token,
                 ssl=True)
         room = campfire.find_room_by_name(env.campfire_room)
         room.join()
         if deployed:
-            message = ('%(deployer)s is deploying %(name)s %(branch)s '
-                '(%(deployed)s..%(deploying)s) to %(target)s %(compare_url)s'
-                % locals())
+            message = ('%s is deploying %s %s (%s..%s) to %s %s'
+                % (deployer, name, branch, deployed, deploying, target,
+                    compare_url))
         else:
-            message = ('%(deployer)s is deploying %(name)s %(branch)s to %(target)s'
-                % locals())
+            message = ('%s is deploying %s %s to %s' % (deployer, name,
+                branch, target))
         room.speak(message)
         print 'Campfire notified that %s' % message
 
