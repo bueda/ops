@@ -1,5 +1,5 @@
-fabric==1.0
-boto==1.9b
+fabric==1.0.1
+boto==2.0b4
 prettyprint==0.1.3
 hoppy==0.1.2
 -e git://github.com/rhymes/pinder.git@0a34823#egg=pinder
